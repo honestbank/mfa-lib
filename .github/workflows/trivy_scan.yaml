@@ -27,7 +27,7 @@ jobs:
       - name: Setup go modules
         run: go clean -modcache;go mod tidy; go mod download; go mod verify; go mod vendor;
 
-      - name: Run Trivy vulnerability scanner in repo mode
+      - name: trivy-scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'

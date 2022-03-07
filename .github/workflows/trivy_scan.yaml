@@ -21,6 +21,8 @@ jobs:
         run: |
           mkdir -p ~/.ssh; echo "$SSH_KEY" > ~/.ssh/id_rsa; chmod 600 ~/.ssh/id_rsa; git config --global url."git@github.com:".insteadOf "https://github.com/"
 
+      - name: mocks
+        run: make generate
       - name: Setup go modules
         run: go clean -modcache;go mod tidy; go mod download; go mod verify; go mod vendor;
 

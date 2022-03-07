@@ -25,6 +25,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: mocks
+        run: make generate
+
       - name: Setup go modules
         run: go clean -modcache;go mod tidy; go mod download; go mod verify;
 

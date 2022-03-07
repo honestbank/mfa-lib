@@ -2,7 +2,7 @@ name: Trivy Scan
 on:
   pull_request:
 jobs:
-  trivy_scan:
+  trivy-scan:
     name: Build
     runs-on: ubuntu-latest
     strategy:

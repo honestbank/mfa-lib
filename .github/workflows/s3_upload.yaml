@@ -1,0 +1,45 @@
+# This workflow is for archiving codes on AWS S3 bucket
+
+name: archive-to-S3
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  archive_to_s3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Configure ssh-key for private modules
+        env:
+          SSH_KEY: ${{ secrets.ENGINEERING_SSH_KEY }}
+        run: mkdir -p ~/.ssh; echo "$SSH_KEY" > ~/.ssh/id_rsa; chmod 600 ~/.ssh/id_rsa; git config --global url."git@github.com:".insteadOf "https://github.com/"
+
+      - name: Setup go modules
+        run: go clean -modcache; go mod tidy; go mod download; go mod verify; go mod vendor;
+
+      - name: Set env
+        run: |
+          echo "DEST_DIR=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.CODE_ARCHIVE_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CODE_ARCHIVE_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.CODE_ARCHIVE_AWS_REGION }}
+
+      - name: Sync code to S3
+        env:
+          CODE_AWS_S3_BUCKET: ${{ secrets.CODE_ARCHIVE_AWS_S3_BUCKET }}
+        run: |
+          aws s3 sync . s3://${{ env.CODE_AWS_S3_BUCKET }}/${{ env.DEST_DIR }}/ --follow-symlinks --delete

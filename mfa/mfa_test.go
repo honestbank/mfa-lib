@@ -2,7 +2,10 @@ package mfa_test
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -267,6 +270,74 @@ func TestNewMFAService(t *testing.T) {
 
 		a.Error(err)
 		a.Equal("Failed to handle challenge", err.Error())
+		a.Equal(expectedResult, *result)
+	})
+	t.Run("MFA_Request_PassAdditional", func(t *testing.T) {
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fSwiaWRlbnRpZmllciI6ImlkZW50aWZpZXIiLCJ0eXBlIjoic29tZXR5cGUiLCJtZXRhIjpbeyJrZXkiOiJtZXRha2V5IiwidmFsdWUiOiJtdWNoTWV0YSJ9XX0=."
+		a := assert.New(t)
+		ctrl := gomock.NewController(t)
+		config := entities.Config{}
+		jwtService := mocks.NewMockIJWTService(ctrl)
+		mockflow := mocks.NewMockIFlow(ctrl)
+
+		flowMap := map[string]flow.IFlow{
+			"test": mockflow,
+		}
+
+		jwtService.EXPECT().GenerateToken(entities.JWTData{
+			Flow: "test",
+			Challenges: map[string]entities.Challenge{
+				"dummy": {
+					Status: "pending",
+				},
+			},
+			Identifier: "identifier",
+			Type:       "sometype",
+			Meta: []JWTEntities.Meta{
+				{
+					Key:   "metakey",
+					Value: "muchMeta",
+				},
+			},
+		}, gomock.Any()).Return(validJWT, nil)
+
+		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
+		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetName().Return("test")
+		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().Initialize(gomock.Any()).Return(&JWTEntities.JWTAdditions{
+			Identifier: "identifier",
+			Type:       "sometype",
+			Meta: []JWTEntities.Meta{
+				{
+					Key:   "metakey",
+					Value: "muchMeta",
+				},
+			},
+		}, nil)
+
+		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
+
+		result, err := mfaService.Request(context.TODO(), "test")
+
+		nullMetadata := "null"
+		expectedResult := entities.MFAResult{
+			Token:      validJWT,
+			Challenges: []string{"dummy"},
+			Metadata:   &nullMetadata,
+		}
+
+		var decodedJWT entities.JWTData
+		base64Claims := strings.Split(result.Token, ".")
+
+		claimsJson, _ := base64.StdEncoding.DecodeString(base64Claims[1])
+		_ = json.Unmarshal(claimsJson, &decodedJWT)
+
+		a.Equal("identifier", decodedJWT.Identifier)
+		a.Equal("metakey", decodedJWT.Meta[0].Key)
+
+		a.NoError(err)
 		a.Equal(expectedResult, *result)
 	})
 }

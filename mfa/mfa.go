@@ -123,7 +123,8 @@ func (m *Service) handleRequest(decodedJWT entities.JWTData, challenge string, i
 	claims, _ := m.generateClaims(requestFlow, decodedJWT)
 	token, _ := m.JWTService.GenerateToken(claims, scopes)
 
-	challenges := append(requestFlow.GetChallenges(), challenge)
+	var challenges []string
+	challenges = append(challenges, requestFlow.GetChallenges()...)
 
 	if err != nil {
 		return &entities.MFAResult{
@@ -160,7 +161,8 @@ func (m *Service) handleSolve(decodedJWT entities.JWTData, challenge string, inp
 			Status: "failed",
 		}
 		token, _ := m.JWTService.GenerateToken(claims, scopes)
-		challenges := append(requestFlow.GetChallenges(), challenge)
+		var challenges []string
+		challenges = append(challenges, requestFlow.GetChallenges()...)
 
 		return &entities.MFAResult{
 			Token:      token,

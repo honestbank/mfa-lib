@@ -51,11 +51,3 @@ func (f Flow) GetChallenges() []string {
 
 	return challenges
 }
-
-/**
-flow {
-GetName
-Solve
-Request
-Resolve
-*/

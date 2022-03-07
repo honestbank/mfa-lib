@@ -1,6 +1,7 @@
 package mfa
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -29,7 +30,7 @@ func NewMFAService(config entities.Config, jwtService jwt.IJWTService, flows map
 func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	var decodedJWT entities.JWTData
 	base64Claims := strings.Split(jwt, ".")
-	if len(base64Claims) < 2 {
+	if len(base64Claims) < 3 {
 		return nil, errors.New("Invalid JWT")
 	}
 	claimsJson, _ := base64.StdEncoding.DecodeString(base64Claims[1])
@@ -41,7 +42,7 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	return &decodedJWT, nil
 }
 
-func (m *Service) getFlow(flow string, decodedJWT *entities.JWTData, challenge *string) (flow.IFlow, error) {
+func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string) (flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
 		return nil, errors.New("Flow not found")
@@ -50,7 +51,7 @@ func (m *Service) getFlow(flow string, decodedJWT *entities.JWTData, challenge *
 	if challenge == nil {
 		return requestedFlow, nil
 	}
-	err := requestedFlow.Validate(*challenge, *decodedJWT)
+	err := requestedFlow.Validate(ctx, *challenge, *decodedJWT)
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +59,12 @@ func (m *Service) getFlow(flow string, decodedJWT *entities.JWTData, challenge *
 	return requestedFlow, nil
 }
 
-func (m *Service) Process(jwt string, challenge string, input string, request bool) (*entities.MFAResult, error) {
+func (m *Service) Process(ctx context.Context, jwt string, challenge string, input string, request bool) (*entities.MFAResult, error) {
 	decodedJWT, err := m.decodeJWT(jwt)
 	if err != nil {
 		return nil, err
 	}
-	requestFlow, err := m.getFlow(decodedJWT.Flow, decodedJWT, &challenge)
+	requestFlow, err := m.getFlow(ctx, decodedJWT.Flow, decodedJWT, &challenge)
 	if err != nil {
 		return nil, err
 	}
@@ -75,15 +76,23 @@ func (m *Service) Process(jwt string, challenge string, input string, request bo
 	return m.handleSolve(*decodedJWT, challenge, input, requestFlow)
 }
 
-func (m *Service) Request(flow string) (*entities.MFAResult, error) {
-	requestFlow, err := m.getFlow(flow, &entities.JWTData{}, nil)
+func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult, error) {
+	requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil)
 	if err != nil {
 		return nil, err
 	}
 	challenge := requestFlow.GetChallenges()[0]
 
+	additionalJWTData, err := requestFlow.Initialize(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return m.handleRequest(entities.JWTData{
-		Flow: flow,
+		Flow:       flow,
+		Identifier: additionalJWTData.Identifier,
+		Type:       additionalJWTData.Type,
+		Meta:       additionalJWTData.Meta,
 	}, challenge, "{}", requestFlow)
 }
 

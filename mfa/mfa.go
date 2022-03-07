@@ -30,7 +30,7 @@ func NewMFAService(config entities.Config, jwtService jwt.IJWTService, flows map
 func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	var decodedJWT entities.JWTData
 	base64Claims := strings.Split(jwt, ".")
-	if len(base64Claims) != 3 {
+	if len(base64Claims) < 3 {
 		return nil, errors.New("Invalid JWT")
 	}
 	claimsJson, _ := base64.StdEncoding.DecodeString(base64Claims[1])
@@ -98,9 +98,6 @@ func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult
 
 func (m *Service) generateClaims(requestFlow flow.IFlow, jwtData entities.JWTData) (entities.JWTData, error) {
 	var claims entities.JWTData
-	claims.Meta = jwtData.Meta
-	claims.Identifier = jwtData.Identifier
-	claims.Type = jwtData.Type
 	claims.Flow = requestFlow.GetName()
 	claims.Challenges = map[string]entities.Challenge{}
 	challenges := requestFlow.GetChallenges()

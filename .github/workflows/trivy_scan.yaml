@@ -1,4 +1,4 @@
-name: trivy-scan
+name: Trivy Scan
 on:
   pull_request:
 jobs:

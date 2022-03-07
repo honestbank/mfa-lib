@@ -30,7 +30,7 @@ func NewMFAService(config entities.Config, jwtService jwt.IJWTService, flows map
 func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	var decodedJWT entities.JWTData
 	base64Claims := strings.Split(jwt, ".")
-	if len(base64Claims) < 3 {
+	if len(base64Claims) != 3 {
 		return nil, errors.New("Invalid JWT")
 	}
 	claimsJson, _ := base64.StdEncoding.DecodeString(base64Claims[1])

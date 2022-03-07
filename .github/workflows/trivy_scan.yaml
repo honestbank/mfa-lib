@@ -5,9 +5,6 @@ jobs:
   trivy-scan:
     name: trivy-scan
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go: [ "1.16" ]
     steps:
       - name: Set up Golang
         uses: actions/setup-go@v2

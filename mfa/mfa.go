@@ -136,7 +136,11 @@ func (m *Service) handleRequest(decodedJWT entities.JWTData, challenge string, i
 	token, _ := m.JWTService.GenerateToken(claims, scopes)
 
 	var challenges []string
-	challenges = append(challenges, requestFlow.GetChallenges()...)
+	for _, flowChallenge := range requestFlow.GetChallenges() {
+		if claims.Challenges[flowChallenge].Status != "passed" {
+			challenges = append(challenges, flowChallenge)
+		}
+	}
 
 	if err != nil {
 		return &entities.MFAResult{

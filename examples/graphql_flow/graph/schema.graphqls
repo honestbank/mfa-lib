@@ -1,0 +1,33 @@
+input requestOTPInput {
+  mobileNumber: String!
+}
+
+type requestOTPResult {
+  token: String!
+  reference: String!
+}
+
+input solveOTPInput {
+  reference: String!
+  code: String!
+}
+
+type solveOTPResult {
+  token: String!
+  flowResult: FlowResult!
+}
+
+type FlowResult {
+  nextChallenges: [String!]!
+}
+
+type initializeFlowResponse {
+  token: String!
+  challenges: [String!]!
+}
+
+type Mutation {
+  initializeFlow(flowName: String!): initializeFlowResponse!
+  challenges_solveOTP(input: solveOTPInput): solveOTPResult
+  challenges_requestOTP(input: requestOTPInput): requestOTPResult
+}

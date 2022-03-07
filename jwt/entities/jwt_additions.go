@@ -1,12 +1,12 @@
 package entities
 
 type JWTAdditions struct {
-	Identifier string
-	Type       string
-	Meta       []Meta
+	Identifier string `json:"identifier"`
+	Type       string `json:"type"`
+	Meta       []Meta `json:"meta"`
 }
 
 type Meta struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }

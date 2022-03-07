@@ -98,6 +98,9 @@ func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult
 
 func (m *Service) generateClaims(requestFlow flow.IFlow, jwtData entities.JWTData) (entities.JWTData, error) {
 	var claims entities.JWTData
+	claims.Meta = jwtData.Meta
+	claims.Identifier = jwtData.Identifier
+	claims.Type = jwtData.Type
 	claims.Flow = requestFlow.GetName()
 	claims.Challenges = map[string]entities.Challenge{}
 	challenges := requestFlow.GetChallenges()

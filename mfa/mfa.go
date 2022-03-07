@@ -194,6 +194,31 @@ func (m *Service) handleSolve(decodedJWT entities.JWTData, challenge string, inp
 			challenges = append(challenges, flowChallenge)
 		}
 	}
+	if len(challenges) == 0 {
+		resolveRes, err := requestFlow.Resolve(decodedJWT)
+		if err != nil {
+			return &entities.MFAResult{
+				Token:      token,
+				Challenges: challenges,
+				Metadata:   &resultJsonString,
+			}, err
+		}
+		resolveTokenRef := (*resolveRes)["token"]
+		if resolveTokenRef == nil {
+			return &entities.MFAResult{
+				Token:      token,
+				Challenges: challenges,
+				Metadata:   &resultJsonString,
+			}, errors.New("Unable to resolve flow")
+		}
+		resolveToken := resolveTokenRef.(string)
+
+		return &entities.MFAResult{
+			Token:      resolveToken,
+			Challenges: challenges,
+			Metadata:   &resultJsonString,
+		}, nil
+	}
 
 	return &entities.MFAResult{
 		Token:      token,

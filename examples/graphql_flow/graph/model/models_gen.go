@@ -11,13 +11,10 @@ type InitializeFlowResponse struct {
 	Challenges []string `json:"challenges"`
 }
 
-type RequestOTPInput struct {
-	MobileNumber string `json:"mobileNumber"`
-}
-
 type RequestOTPResult struct {
-	Token     string `json:"token"`
-	Reference string `json:"reference"`
+	Token      string   `json:"token"`
+	Reference  string   `json:"reference"`
+	Challenges []string `json:"challenges"`
 }
 
 type SolveOTPInput struct {
@@ -28,4 +25,5 @@ type SolveOTPInput struct {
 type SolveOTPResult struct {
 	Token      string      `json:"token"`
 	FlowResult *FlowResult `json:"flowResult"`
+	Challenges []string    `json:"challenges"`
 }

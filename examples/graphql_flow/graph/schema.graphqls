@@ -1,10 +1,7 @@
-input requestOTPInput {
-  mobileNumber: String!
-}
-
 type requestOTPResult {
   token: String!
   reference: String!
+  challenges: [String!]!
 }
 
 input solveOTPInput {
@@ -15,6 +12,7 @@ input solveOTPInput {
 type solveOTPResult {
   token: String!
   flowResult: FlowResult!
+  challenges: [String!]!
 }
 
 type FlowResult {
@@ -26,8 +24,12 @@ type initializeFlowResponse {
   challenges: [String!]!
 }
 
+type Query {
+  hello: String!
+}
+
 type Mutation {
   initializeFlow(flowName: String!): initializeFlowResponse!
   challenges_solveOTP(input: solveOTPInput): solveOTPResult
-  challenges_requestOTP(input: requestOTPInput): requestOTPResult
+  challenges_requestOTP: requestOTPResult
 }

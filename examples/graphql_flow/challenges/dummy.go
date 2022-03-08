@@ -27,8 +27,8 @@ type DummyChallenge struct {
 
 func (c *DummyChallenge) Solve(body map[string]interface{}) (*map[string]interface{}, error) {
 	log.Println("seed:", c.Seed)
-	log.Println("password:", body["password"])
-	if body["username"] == "admin" && body["password"].(string) == c.Seed {
+	log.Println("password:", body["code"])
+	if body["reference"] == c.Seed && body["code"] == "123" {
 		return nil, nil
 	}
 	return nil, errors.New("failed!")
@@ -39,7 +39,7 @@ func (c *DummyChallenge) Request(body map[string]interface{}) (*map[string]inter
 	c.Seed = randSeq(10)
 	log.Println("Seed:", c.Seed)
 	return &map[string]interface{}{
-		"key": c.Seed,
+		"Reference": c.Seed,
 	}, nil
 }
 

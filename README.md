@@ -41,12 +41,12 @@ passed from the user.
 
 ```go
 func (c *DummyChallenge) Solve(body map[string]interface{}) (*map[string]interface{}, error) {
-log.Println("seed:", c.Seed)
-log.Println("password:", body["password"])
-if body["username"] == "admin" && body["password"].(string) == c.Seed {
-return nil, nil
-}
-return nil, errors.New("failed!")
+	log.Println("seed:", c.Seed)
+	log.Println("password:", body["password"])
+	if body["username"] == "admin" && body["password"].(string) == c.Seed {
+		return nil, nil
+	}
+	return nil, errors.New("failed!")
 }
 ```
 
@@ -69,12 +69,12 @@ passed from the user (if any).
 
 ```go
 func (c *DummyChallenge) Request(body map[string]interface{}) (*map[string]interface{}, error) {
-rand.Seed(time.Now().UnixNano())
-c.Seed = randSeq(10)
-log.Println("Seed:", c.Seed)
-return &map[string]interface{}{
-"Reference": c.Seed,
-}, nil
+	rand.Seed(time.Now().UnixNano())
+	c.Seed = randSeq(10)
+	log.Println("Seed:", c.Seed)
+	return &map[string]interface{}{
+		"Reference": c.Seed,
+	}, nil
 }
 ```
 

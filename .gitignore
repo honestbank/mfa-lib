@@ -449,7 +449,6 @@ vendor
 internal/bindata
 config/*.json
 !config/config.dev.json
-mocks
 .ssh
 
 

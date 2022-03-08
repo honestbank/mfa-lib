@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -35,6 +36,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Mutation() MutationResolver
+	Query() QueryResolver
 }
 
 type DirectiveRoot struct {
@@ -46,12 +48,13 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ChallengesRequestOtp func(childComplexity int, input *model.RequestOTPInput) int
+		ChallengesRequestOtp func(childComplexity int) int
 		ChallengesSolveOtp   func(childComplexity int, input *model.SolveOTPInput) int
 		InitializeFlow       func(childComplexity int, flowName string) int
 	}
 
 	Query struct {
+		Hello func(childComplexity int) int
 	}
 
 	InitializeFlowResponse struct {
@@ -60,11 +63,13 @@ type ComplexityRoot struct {
 	}
 
 	RequestOTPResult struct {
-		Reference func(childComplexity int) int
-		Token     func(childComplexity int) int
+		Challenges func(childComplexity int) int
+		Reference  func(childComplexity int) int
+		Token      func(childComplexity int) int
 	}
 
 	SolveOTPResult struct {
+		Challenges func(childComplexity int) int
 		FlowResult func(childComplexity int) int
 		Token      func(childComplexity int) int
 	}
@@ -73,7 +78,10 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	InitializeFlow(ctx context.Context, flowName string) (*model.InitializeFlowResponse, error)
 	ChallengesSolveOtp(ctx context.Context, input *model.SolveOTPInput) (*model.SolveOTPResult, error)
-	ChallengesRequestOtp(ctx context.Context, input *model.RequestOTPInput) (*model.RequestOTPResult, error)
+	ChallengesRequestOtp(ctx context.Context) (*model.RequestOTPResult, error)
+}
+type QueryResolver interface {
+	Hello(ctx context.Context) (string, error)
 }
 
 type executableSchema struct {
@@ -103,12 +111,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_challenges_requestOTP_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.ChallengesRequestOtp(childComplexity, args["input"].(*model.RequestOTPInput)), true
+		return e.complexity.Mutation.ChallengesRequestOtp(childComplexity), true
 
 	case "Mutation.challenges_solveOTP":
 		if e.complexity.Mutation.ChallengesSolveOtp == nil {
@@ -134,6 +137,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.InitializeFlow(childComplexity, args["flowName"].(string)), true
 
+	case "Query.hello":
+		if e.complexity.Query.Hello == nil {
+			break
+		}
+
+		return e.complexity.Query.Hello(childComplexity), true
+
 	case "initializeFlowResponse.challenges":
 		if e.complexity.InitializeFlowResponse.Challenges == nil {
 			break
@@ -148,6 +158,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.InitializeFlowResponse.Token(childComplexity), true
 
+	case "requestOTPResult.challenges":
+		if e.complexity.RequestOTPResult.Challenges == nil {
+			break
+		}
+
+		return e.complexity.RequestOTPResult.Challenges(childComplexity), true
+
 	case "requestOTPResult.reference":
 		if e.complexity.RequestOTPResult.Reference == nil {
 			break
@@ -161,6 +178,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RequestOTPResult.Token(childComplexity), true
+
+	case "solveOTPResult.challenges":
+		if e.complexity.SolveOTPResult.Challenges == nil {
+			break
+		}
+
+		return e.complexity.SolveOTPResult.Challenges(childComplexity), true
 
 	case "solveOTPResult.flowResult":
 		if e.complexity.SolveOTPResult.FlowResult == nil {
@@ -240,13 +264,10 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `input requestOTPInput {
-  mobileNumber: String!
-}
-
-type requestOTPResult {
+	{Name: "graph/schema.graphqls", Input: `type requestOTPResult {
   token: String!
   reference: String!
+  challenges: [String!]!
 }
 
 input solveOTPInput {
@@ -257,6 +278,7 @@ input solveOTPInput {
 type solveOTPResult {
   token: String!
   flowResult: FlowResult!
+  challenges: [String!]!
 }
 
 type FlowResult {
@@ -268,10 +290,14 @@ type initializeFlowResponse {
   challenges: [String!]!
 }
 
+type Query {
+  hello: String!
+}
+
 type Mutation {
   initializeFlow(flowName: String!): initializeFlowResponse!
   challenges_solveOTP(input: solveOTPInput): solveOTPResult
-  challenges_requestOTP(input: requestOTPInput): requestOTPResult
+  challenges_requestOTP: requestOTPResult
 }
 `, BuiltIn: false},
 }
@@ -281,28 +307,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_challenges_requestOTP_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *model.RequestOTPInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOrequestOTPInput2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐRequestOTPInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_challenges_solveOTP_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *model.SolveOTPInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOsolveOTPInput2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPInput(ctx, tmp)
+		arg0, err = ec.unmarshalOsolveOTPInput2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -453,7 +464,7 @@ func (ec *executionContext) _Mutation_initializeFlow(ctx context.Context, field 
 	}
 	res := resTmp.(*model.InitializeFlowResponse)
 	fc.Result = res
-	return ec.marshalNinitializeFlowResponse2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐInitializeFlowResponse(ctx, field.Selections, res)
+	return ec.marshalNinitializeFlowResponse2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐInitializeFlowResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_challenges_solveOTP(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -492,7 +503,7 @@ func (ec *executionContext) _Mutation_challenges_solveOTP(ctx context.Context, f
 	}
 	res := resTmp.(*model.SolveOTPResult)
 	fc.Result = res
-	return ec.marshalOsolveOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPResult(ctx, field.Selections, res)
+	return ec.marshalOsolveOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_challenges_requestOTP(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -511,16 +522,9 @@ func (ec *executionContext) _Mutation_challenges_requestOTP(ctx context.Context,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_challenges_requestOTP_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ChallengesRequestOtp(rctx, args["input"].(*model.RequestOTPInput))
+		return ec.resolvers.Mutation().ChallengesRequestOtp(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -531,7 +535,42 @@ func (ec *executionContext) _Mutation_challenges_requestOTP(ctx context.Context,
 	}
 	res := resTmp.(*model.RequestOTPResult)
 	fc.Result = res
-	return ec.marshalOrequestOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐRequestOTPResult(ctx, field.Selections, res)
+	return ec.marshalOrequestOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐRequestOTPResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_hello(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Hello(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1863,6 +1902,41 @@ func (ec *executionContext) _requestOTPResult_reference(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _requestOTPResult_challenges(ctx context.Context, field graphql.CollectedField, obj *model.RequestOTPResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "requestOTPResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Challenges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _solveOTPResult_token(ctx context.Context, field graphql.CollectedField, obj *model.SolveOTPResult) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1930,35 +2004,47 @@ func (ec *executionContext) _solveOTPResult_flowResult(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.FlowResult)
 	fc.Result = res
-	return ec.marshalNFlowResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐFlowResult(ctx, field.Selections, res)
+	return ec.marshalNFlowResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐFlowResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _solveOTPResult_challenges(ctx context.Context, field graphql.CollectedField, obj *model.SolveOTPResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "solveOTPResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Challenges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
-
-func (ec *executionContext) unmarshalInputrequestOTPInput(ctx context.Context, obj interface{}) (model.RequestOTPInput, error) {
-	var it model.RequestOTPInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	for k, v := range asMap {
-		switch k {
-		case "mobileNumber":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("mobileNumber"))
-			it.MobileNumber, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
 
 func (ec *executionContext) unmarshalInputsolveOTPInput(ctx context.Context, obj interface{}) (model.SolveOTPInput, error) {
 	var it model.SolveOTPInput
@@ -2103,6 +2189,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "hello":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_hello(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -2604,6 +2713,16 @@ func (ec *executionContext) _requestOTPResult(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "challenges":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._requestOTPResult_challenges(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2645,6 +2764,16 @@ func (ec *executionContext) _solveOTPResult(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "challenges":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._solveOTPResult_challenges(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2675,7 +2804,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNFlowResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐFlowResult(ctx context.Context, sel ast.SelectionSet, v *model.FlowResult) graphql.Marshaler {
+func (ec *executionContext) marshalNFlowResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐFlowResult(ctx context.Context, sel ast.SelectionSet, v *model.FlowResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2985,11 +3114,11 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalNinitializeFlowResponse2githubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐInitializeFlowResponse(ctx context.Context, sel ast.SelectionSet, v model.InitializeFlowResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNinitializeFlowResponse2githubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐInitializeFlowResponse(ctx context.Context, sel ast.SelectionSet, v model.InitializeFlowResponse) graphql.Marshaler {
 	return ec._initializeFlowResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNinitializeFlowResponse2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐInitializeFlowResponse(ctx context.Context, sel ast.SelectionSet, v *model.InitializeFlowResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNinitializeFlowResponse2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐInitializeFlowResponse(ctx context.Context, sel ast.SelectionSet, v *model.InitializeFlowResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3253,22 +3382,14 @@ func (ec *executionContext) marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 	return ec.___Type(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOrequestOTPInput2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐRequestOTPInput(ctx context.Context, v interface{}) (*model.RequestOTPInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputrequestOTPInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOrequestOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐRequestOTPResult(ctx context.Context, sel ast.SelectionSet, v *model.RequestOTPResult) graphql.Marshaler {
+func (ec *executionContext) marshalOrequestOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐRequestOTPResult(ctx context.Context, sel ast.SelectionSet, v *model.RequestOTPResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._requestOTPResult(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOsolveOTPInput2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPInput(ctx context.Context, v interface{}) (*model.SolveOTPInput, error) {
+func (ec *executionContext) unmarshalOsolveOTPInput2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPInput(ctx context.Context, v interface{}) (*model.SolveOTPInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3276,7 +3397,7 @@ func (ec *executionContext) unmarshalOsolveOTPInput2ᚖgithubᚗcomᚋhonestbank
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOsolveOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑserviceᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPResult(ctx context.Context, sel ast.SelectionSet, v *model.SolveOTPResult) graphql.Marshaler {
+func (ec *executionContext) marshalOsolveOTPResult2ᚖgithubᚗcomᚋhonestbankᚋmfaᚑlibᚋexamplesᚋgraphql_flowᚋgraphᚋmodelᚐSolveOTPResult(ctx context.Context, sel ast.SelectionSet, v *model.SolveOTPResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

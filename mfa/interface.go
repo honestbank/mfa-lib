@@ -1,8 +1,12 @@
 package mfa
 
-import "github.com/honestbank/mfa-lib/mfa/entities"
+import (
+	"context"
+
+	"github.com/honestbank/mfa-lib/mfa/entities"
+)
 
 type IMFAService interface {
-	Request(flow string) (*entities.MFAResult, error)
-	Process(jwt string, challenge string, input string, request bool) (*entities.MFAResult, error)
+	Request(ctx context.Context, flow string) (*entities.MFAResult, error)
+	Process(ctx context.Context, jwt string, challenge string, input string, request bool) (*entities.MFAResult, error)
 }

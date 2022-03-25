@@ -22,9 +22,9 @@ func (f SingleFlow) Resolve(jwtData mfaEntities.JWTData) (*map[string]interface{
 	}, nil
 }
 
-func (f SingleFlow) Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData) error {
+func (f SingleFlow) Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData) (context.Context, error) {
 	//TODO implement me
-	return nil
+	return ctx, nil
 }
 
 func (f SingleFlow) Initialize(ctx context.Context) (*JWTEntities.JWTAdditions, error) {

@@ -11,7 +11,7 @@ type IFlow interface {
 	Solve(ctx context.Context, challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
 	Request(ctx context.Context, challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
 	Resolve(JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
-	Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData) error
+	Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData) (context.Context, error)
 	GetChallenges() []string
 	GetName() string
 	Initialize(ctx context.Context) (*entities.JWTAdditions, error)

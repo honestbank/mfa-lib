@@ -59,7 +59,7 @@ func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities
 	return requestedFlow, nil
 }
 
-func (m *Service) Process(ctx context.Context, jwt string, challenge string, input string, request bool) (*entities.MFAResult, error) {
+func (m *Service) Process(ctx context.Context, jwt string, challenge string, input string, request bool, beforeHook *func(ctx context.Context, challenge string, input string) error) (*entities.MFAResult, error) {
 	decodedJWT, err := m.decodeJWT(jwt)
 	if err != nil {
 		return nil, err
@@ -69,11 +69,17 @@ func (m *Service) Process(ctx context.Context, jwt string, challenge string, inp
 		return nil, err
 	}
 
+	if beforeHook != nil {
+		err = (*beforeHook)(ctx, challenge, input)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if request {
-		return m.handleRequest(*decodedJWT, challenge, input, requestFlow)
+		return m.handleRequest(ctx, *decodedJWT, challenge, input, requestFlow)
 	}
 
-	return m.handleSolve(*decodedJWT, challenge, input, requestFlow)
+	return m.handleSolve(ctx, *decodedJWT, challenge, input, requestFlow)
 }
 
 func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult, error) {
@@ -88,7 +94,7 @@ func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult
 		return nil, err
 	}
 
-	return m.handleRequest(entities.JWTData{
+	return m.handleRequest(ctx, entities.JWTData{
 		Flow:       flow,
 		Identifier: additionalJWTData.Identifier,
 		Type:       additionalJWTData.Type,
@@ -125,8 +131,8 @@ func (m *Service) getChallengeStatus(claimStatus string) entities.Challenge {
 	}
 }
 
-func (m *Service) handleRequest(decodedJWT entities.JWTData, challenge string, input string, requestFlow flow.IFlow) (*entities.MFAResult, error) {
-	result, err := requestFlow.Request(challenge, input, decodedJWT)
+func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData, challenge string, input string, requestFlow flow.IFlow) (*entities.MFAResult, error) {
+	result, err := requestFlow.Request(ctx, challenge, input, decodedJWT)
 
 	resultJson, _ := json.Marshal(result)
 	resultJsonString := string(resultJson)
@@ -165,8 +171,8 @@ func (m *Service) handleRequest(decodedJWT entities.JWTData, challenge string, i
 	}, nil
 }
 
-func (m *Service) handleSolve(decodedJWT entities.JWTData, challenge string, input string, requestFlow flow.IFlow) (*entities.MFAResult, error) {
-	result, err := requestFlow.Solve(challenge, input, decodedJWT)
+func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, challenge string, input string, requestFlow flow.IFlow) (*entities.MFAResult, error) {
+	result, err := requestFlow.Solve(ctx, challenge, input, decodedJWT)
 
 	resultJson, _ := json.Marshal(result)
 	resultJsonString := string(resultJson)

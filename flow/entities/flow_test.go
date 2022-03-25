@@ -1,6 +1,7 @@
 package entities_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -44,9 +45,9 @@ func TestFlow_GetChallenges(t *testing.T) {
 			},
 		}
 
-		dummyChallenge.EXPECT().Solve(gomock.Any()).Return(nil, nil)
+		dummyChallenge.EXPECT().Solve(gomock.Any(), gomock.Any()).Return(nil, nil)
 
-		solved, err := flow.Solve("dummy", "{}", mfaEntities.JWTData{
+		solved, err := flow.Solve(context.TODO(), "dummy", "{}", mfaEntities.JWTData{
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
@@ -71,9 +72,9 @@ func TestFlow_GetChallenges(t *testing.T) {
 			},
 		}
 
-		dummyChallenge.EXPECT().Solve(gomock.Any()).Return(nil, errors.New("error"))
+		dummyChallenge.EXPECT().Solve(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
 
-		solved, err := flow.Solve("dummy", "{}", mfaEntities.JWTData{
+		solved, err := flow.Solve(context.TODO(), "dummy", "{}", mfaEntities.JWTData{
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
@@ -98,7 +99,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			},
 		}
 
-		solved, err := flow.Solve("dummy", "", mfaEntities.JWTData{
+		solved, err := flow.Solve(context.TODO(), "dummy", "", mfaEntities.JWTData{
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
@@ -123,7 +124,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			},
 		}
 
-		solved, err := flow.Solve("dummy2", "{}", mfaEntities.JWTData{
+		solved, err := flow.Solve(context.TODO(), "dummy2", "{}", mfaEntities.JWTData{
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
@@ -148,9 +149,9 @@ func TestFlow_GetChallenges(t *testing.T) {
 			},
 		}
 
-		dummyChallenge.EXPECT().Request(gomock.Any()).Return(nil, nil)
+		dummyChallenge.EXPECT().Request(gomock.Any(), gomock.Any()).Return(nil, nil)
 
-		reqested, err := flow.Request("dummy", "{}", mfaEntities.JWTData{
+		reqested, err := flow.Request(context.TODO(), "dummy", "{}", mfaEntities.JWTData{
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
@@ -176,7 +177,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			},
 		}
 
-		reqested, err := flow.Request("dummy2", "{}", mfaEntities.JWTData{
+		reqested, err := flow.Request(context.TODO(), "dummy2", "{}", mfaEntities.JWTData{
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
@@ -203,7 +204,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			},
 		}
 
-		reqested, err := flow.Request("dummy", "", mfaEntities.JWTData{
+		reqested, err := flow.Request(context.TODO(), "dummy", "", mfaEntities.JWTData{
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {

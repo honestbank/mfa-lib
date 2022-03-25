@@ -1,6 +1,7 @@
 package challenges
 
 import (
+	"context"
 	"errors"
 	"log"
 	"math/rand"
@@ -15,7 +16,7 @@ type DummyTwoChallenge struct {
 	Seed string `json:"seed"`
 }
 
-func (c *DummyTwoChallenge) Solve(body map[string]interface{}) (*map[string]interface{}, error) {
+func (c *DummyTwoChallenge) Solve(ctx context.Context, body map[string]interface{}) (*map[string]interface{}, error) {
 	log.Println("seed:", c.Seed)
 	log.Println("password:", body["password"])
 	if body["username"] == "admin" && body["password"].(string) == c.Seed {
@@ -24,7 +25,7 @@ func (c *DummyTwoChallenge) Solve(body map[string]interface{}) (*map[string]inte
 	return nil, errors.New("failed!")
 }
 
-func (c *DummyTwoChallenge) Request(body map[string]interface{}) (*map[string]interface{}, error) {
+func (c *DummyTwoChallenge) Request(ctx context.Context, body map[string]interface{}) (*map[string]interface{}, error) {
 	rand.Seed(time.Now().UnixNano())
 	c.Seed = randSeq(10)
 	log.Println("Seed:", c.Seed)

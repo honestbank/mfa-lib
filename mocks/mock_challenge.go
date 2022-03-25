@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,31 +35,31 @@ func (m *MockIChallenge) EXPECT() *MockIChallengeMockRecorder {
 }
 
 // Request mocks base method.
-func (m *MockIChallenge) Request(arg0 map[string]interface{}) (*map[string]interface{}, error) {
+func (m *MockIChallenge) Request(arg0 context.Context, arg1 map[string]interface{}) (*map[string]interface{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Request", arg0)
+	ret := m.ctrl.Call(m, "Request", arg0, arg1)
 	ret0, _ := ret[0].(*map[string]interface{})
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Request indicates an expected call of Request.
-func (mr *MockIChallengeMockRecorder) Request(arg0 interface{}) *gomock.Call {
+func (mr *MockIChallengeMockRecorder) Request(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockIChallenge)(nil).Request), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockIChallenge)(nil).Request), arg0, arg1)
 }
 
 // Solve mocks base method.
-func (m *MockIChallenge) Solve(arg0 map[string]interface{}) (*map[string]interface{}, error) {
+func (m *MockIChallenge) Solve(arg0 context.Context, arg1 map[string]interface{}) (*map[string]interface{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Solve", arg0)
+	ret := m.ctrl.Call(m, "Solve", arg0, arg1)
 	ret0, _ := ret[0].(*map[string]interface{})
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Solve indicates an expected call of Solve.
-func (mr *MockIChallengeMockRecorder) Solve(arg0 interface{}) *gomock.Call {
+func (mr *MockIChallengeMockRecorder) Solve(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Solve", reflect.TypeOf((*MockIChallenge)(nil).Solve), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Solve", reflect.TypeOf((*MockIChallenge)(nil).Solve), arg0, arg1)
 }

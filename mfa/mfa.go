@@ -42,54 +42,54 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	return &decodedJWT, nil
 }
 
-func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string) (flow.IFlow, error) {
+func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
-		return nil, errors.New("Flow not found")
+		return nil, nil, errors.New("Flow not found")
 	}
 
 	if challenge == nil {
-		return requestedFlow, nil
+		return nil, requestedFlow, nil
 	}
-	err := requestedFlow.Validate(ctx, *challenge, *decodedJWT)
+	newCtx, err := requestedFlow.Validate(ctx, *challenge, *decodedJWT)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return requestedFlow, nil
+	return newCtx, requestedFlow, nil
 }
 
-func (m *Service) Process(ctx context.Context, jwt string, challenge string, input string, request bool, beforeHook *func(ctx context.Context, challenge string, input string) error) (*entities.MFAResult, error) {
+func (m *Service) Process(ctx context.Context, jwt string, challenge string, input string, request bool, beforeHook *func(ctx context.Context, challenge string, input string) (context.Context, error)) (*entities.MFAResult, error) {
 	decodedJWT, err := m.decodeJWT(jwt)
 	if err != nil {
 		return nil, err
 	}
-	requestFlow, err := m.getFlow(ctx, decodedJWT.Flow, decodedJWT, &challenge)
+	newCtx, requestFlow, err := m.getFlow(ctx, decodedJWT.Flow, decodedJWT, &challenge)
 	if err != nil {
 		return nil, err
 	}
 
 	if beforeHook != nil {
-		err = (*beforeHook)(ctx, challenge, input)
+		newCtx, err = (*beforeHook)(newCtx, challenge, input)
 		if err != nil {
 			return nil, err
 		}
 	}
 	if request {
-		return m.handleRequest(ctx, *decodedJWT, challenge, input, requestFlow)
+		return m.handleRequest(newCtx, *decodedJWT, challenge, input, requestFlow)
 	}
 
-	return m.handleSolve(ctx, *decodedJWT, challenge, input, requestFlow)
+	return m.handleSolve(newCtx, *decodedJWT, challenge, input, requestFlow)
 }
 
 func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult, error) {
-	requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil)
+	newCtx, requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil)
 	if err != nil {
 		return nil, err
 	}
 	challenge := requestFlow.GetChallenges()[0]
 
-	additionalJWTData, err := requestFlow.Initialize(ctx)
+	additionalJWTData, err := requestFlow.Initialize(newCtx)
 	if err != nil {
 		return nil, err
 	}

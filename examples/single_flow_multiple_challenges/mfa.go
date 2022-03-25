@@ -44,7 +44,7 @@ func main() {
 	log.Println(fail)
 
 	jwt = res.Token
-	res, err = mfaService.Process(context.TODO(), jwt, "dummy", fail, false)
+	res, err = mfaService.Process(context.TODO(), jwt, "dummy", fail, false, nil)
 	if err != nil {
 		log.Println("Failed")
 	}
@@ -52,7 +52,7 @@ func main() {
 	log.Println(string(resJSON))
 
 	jwt = res.Token
-	res, err = mfaService.Process(context.TODO(), jwt, "dummy", pass, false)
+	res, err = mfaService.Process(context.TODO(), jwt, "dummy", pass, false, nil)
 	if err != nil {
 		log.Println("Failed")
 	}
@@ -60,7 +60,7 @@ func main() {
 	log.Println(string(resJSON))
 
 	jwt = res.Token
-	res, err = mfaService.Process(context.TODO(), jwt, "dummy2", pass, true)
+	res, err = mfaService.Process(context.TODO(), jwt, "dummy2", pass, true, nil)
 	if err != nil {
 		log.Println("Failed")
 	}
@@ -72,7 +72,7 @@ func main() {
 	log.Println(pass)
 	log.Println(fail)
 
-	res, err = mfaService.Process(context.TODO(), jwt, "dummy2", pass, false)
+	res, err = mfaService.Process(context.TODO(), jwt, "dummy2", pass, false, nil)
 	if err != nil {
 		log.Println("Failed")
 	}

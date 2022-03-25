@@ -57,7 +57,7 @@ func TestNewMFAService(t *testing.T) {
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
-		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
@@ -138,7 +138,7 @@ func TestNewMFAService(t *testing.T) {
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
-		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
@@ -175,7 +175,7 @@ func TestNewMFAService(t *testing.T) {
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("Failed to solve"))
-		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
@@ -359,7 +359,7 @@ func TestNewMFAService(t *testing.T) {
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
-		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
@@ -395,7 +395,7 @@ func TestNewMFAService(t *testing.T) {
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
-		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
 		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})

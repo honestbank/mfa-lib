@@ -45,15 +45,15 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
-		return nil, nil, errors.New("Flow not found")
+		return ctx, nil, errors.New("Flow not found")
 	}
 
 	if challenge == nil {
-		return nil, requestedFlow, nil
+		return ctx, requestedFlow, nil
 	}
 	newCtx, err := requestedFlow.Validate(ctx, *challenge, *decodedJWT)
 	if err != nil {
-		return nil, nil, err
+		return ctx, nil, err
 	}
 
 	return newCtx, requestedFlow, nil

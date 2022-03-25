@@ -252,7 +252,27 @@ func TestFlow_GetChallenges(t *testing.T) {
 		}
 
 		ctx := flow.SetIdentifier(context.TODO(), "identifier")
-		a.Equal("identifier", flow.GetIdentifier(ctx))
+		a.Equal("identifier", *flow.GetIdentifier(ctx))
+	})
+
+	t.Run("GetIdentifier - fail", func(t *testing.T) {
+		a := assert.New(t)
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+
+		flow := entities.Flow{
+			Name: "test",
+			Challenges: map[string]challenge.IChallenge{
+				"dummy": dummyChallenge,
+			},
+		}
+
+		ctx := context.TODO()
+		identifier := flow.GetIdentifier(ctx)
+		a.Nil(identifier)
 	})
 
 	t.Run("SetJWT", func(t *testing.T) {
@@ -271,6 +291,26 @@ func TestFlow_GetChallenges(t *testing.T) {
 		}
 
 		ctx := flow.SetJWT(context.TODO(), "identifier")
-		a.Equal("identifier", flow.GetJWT(ctx))
+		a.Equal("identifier", *flow.GetJWT(ctx))
+	})
+
+	t.Run("GetJWT - fail", func(t *testing.T) {
+		a := assert.New(t)
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+
+		flow := entities.Flow{
+			Name: "test",
+			Challenges: map[string]challenge.IChallenge{
+				"dummy": dummyChallenge,
+			},
+		}
+
+		ctx := context.TODO()
+		jwt := flow.GetJWT(ctx)
+		a.Nil(jwt)
 	})
 }

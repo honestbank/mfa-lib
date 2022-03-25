@@ -8,8 +8,8 @@ import (
 )
 
 type IFlow interface {
-	Solve(challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
-	Request(challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
+	Solve(ctx context.Context, challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
+	Request(ctx context.Context, challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
 	Resolve(JWTData mfaEntities.JWTData) (*map[string]interface{}, error)
 	Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData) error
 	GetChallenges() []string

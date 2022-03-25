@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -17,27 +18,27 @@ func (f Flow) GetName() string {
 	return f.Name
 }
 
-func (f Flow) Solve(challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error) {
+func (f Flow) Solve(ctx context.Context, challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error) {
 	var marshaledInput map[string]interface{}
 	err := json.Unmarshal([]byte(input), &marshaledInput)
 	if err != nil {
 		return nil, err
 	}
 	if challenge, ok := f.Challenges[challenge]; ok {
-		return challenge.Solve(marshaledInput)
+		return challenge.Solve(ctx, marshaledInput)
 	}
 
 	return nil, errors.New("Challenge not found")
 }
 
-func (f Flow) Request(challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error) {
+func (f Flow) Request(ctx context.Context, challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error) {
 	var marshaledInput map[string]interface{}
 	err := json.Unmarshal([]byte(input), &marshaledInput)
 	if err != nil {
 		return nil, err
 	}
 	if challenge, ok := f.Challenges[challenge]; ok {
-		return challenge.Request(marshaledInput)
+		return challenge.Request(ctx, marshaledInput)
 	}
 
 	return nil, errors.New("Challenge not found")

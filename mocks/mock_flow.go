@@ -80,18 +80,18 @@ func (mr *MockIFlowMockRecorder) Initialize(arg0 interface{}) *gomock.Call {
 }
 
 // Request mocks base method.
-func (m *MockIFlow) Request(arg0, arg1 string, arg2 entities0.JWTData) (*map[string]interface{}, error) {
+func (m *MockIFlow) Request(arg0 context.Context, arg1, arg2 string, arg3 entities0.JWTData) (*map[string]interface{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Request", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Request", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*map[string]interface{})
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Request indicates an expected call of Request.
-func (mr *MockIFlowMockRecorder) Request(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockIFlowMockRecorder) Request(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockIFlow)(nil).Request), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockIFlow)(nil).Request), arg0, arg1, arg2, arg3)
 }
 
 // Resolve mocks base method.
@@ -110,18 +110,18 @@ func (mr *MockIFlowMockRecorder) Resolve(arg0 interface{}) *gomock.Call {
 }
 
 // Solve mocks base method.
-func (m *MockIFlow) Solve(arg0, arg1 string, arg2 entities0.JWTData) (*map[string]interface{}, error) {
+func (m *MockIFlow) Solve(arg0 context.Context, arg1, arg2 string, arg3 entities0.JWTData) (*map[string]interface{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Solve", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Solve", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*map[string]interface{})
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Solve indicates an expected call of Solve.
-func (mr *MockIFlowMockRecorder) Solve(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockIFlowMockRecorder) Solve(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Solve", reflect.TypeOf((*MockIFlow)(nil).Solve), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Solve", reflect.TypeOf((*MockIFlow)(nil).Solve), arg0, arg1, arg2, arg3)
 }
 
 // Validate mocks base method.

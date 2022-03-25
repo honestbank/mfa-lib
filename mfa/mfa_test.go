@@ -223,7 +223,7 @@ func TestNewMFAService(t *testing.T) {
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
 
-		result, err := mfaService.Request(context.TODO(), "test")
+		result, err := mfaService.Request(context.TODO(), "test", nil)
 
 		reference := "test"
 		expectedResult := entities.MFAResult{
@@ -264,7 +264,7 @@ func TestNewMFAService(t *testing.T) {
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
 
-		result, err := mfaService.Request(context.TODO(), "test")
+		result, err := mfaService.Request(context.TODO(), "test", nil)
 
 		expectedResult := entities.MFAResult{
 			Token:      validJWT,
@@ -322,7 +322,7 @@ func TestNewMFAService(t *testing.T) {
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
 
-		result, err := mfaService.Request(context.TODO(), "test")
+		result, err := mfaService.Request(context.TODO(), "test", nil)
 
 		nullMetadata := "null"
 		expectedResult := entities.MFAResult{

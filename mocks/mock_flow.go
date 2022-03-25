@@ -50,6 +50,34 @@ func (mr *MockIFlowMockRecorder) GetChallenges() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChallenges", reflect.TypeOf((*MockIFlow)(nil).GetChallenges))
 }
 
+// GetIdentifier mocks base method.
+func (m *MockIFlow) GetIdentifier(arg0 context.Context) *string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIdentifier", arg0)
+	ret0, _ := ret[0].(*string)
+	return ret0
+}
+
+// GetIdentifier indicates an expected call of GetIdentifier.
+func (mr *MockIFlowMockRecorder) GetIdentifier(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIdentifier", reflect.TypeOf((*MockIFlow)(nil).GetIdentifier), arg0)
+}
+
+// GetJWT mocks base method.
+func (m *MockIFlow) GetJWT(arg0 context.Context) *string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetJWT", arg0)
+	ret0, _ := ret[0].(*string)
+	return ret0
+}
+
+// GetJWT indicates an expected call of GetJWT.
+func (mr *MockIFlowMockRecorder) GetJWT(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJWT", reflect.TypeOf((*MockIFlow)(nil).GetJWT), arg0)
+}
+
 // GetName mocks base method.
 func (m *MockIFlow) GetName() string {
 	m.ctrl.T.Helper()
@@ -107,6 +135,34 @@ func (m *MockIFlow) Resolve(arg0 entities0.JWTData) (*map[string]interface{}, er
 func (mr *MockIFlowMockRecorder) Resolve(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Resolve", reflect.TypeOf((*MockIFlow)(nil).Resolve), arg0)
+}
+
+// SetIdentifier mocks base method.
+func (m *MockIFlow) SetIdentifier(arg0 context.Context, arg1 string) context.Context {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetIdentifier", arg0, arg1)
+	ret0, _ := ret[0].(context.Context)
+	return ret0
+}
+
+// SetIdentifier indicates an expected call of SetIdentifier.
+func (mr *MockIFlowMockRecorder) SetIdentifier(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetIdentifier", reflect.TypeOf((*MockIFlow)(nil).SetIdentifier), arg0, arg1)
+}
+
+// SetJWT mocks base method.
+func (m *MockIFlow) SetJWT(arg0 context.Context, arg1 string) context.Context {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetJWT", arg0, arg1)
+	ret0, _ := ret[0].(context.Context)
+	return ret0
+}
+
+// SetJWT indicates an expected call of SetJWT.
+func (mr *MockIFlowMockRecorder) SetJWT(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetJWT", reflect.TypeOf((*MockIFlow)(nil).SetJWT), arg0, arg1)
 }
 
 // Solve mocks base method.

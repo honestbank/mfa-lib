@@ -32,7 +32,7 @@ func main() {
 	})
 
 	// Request first challenge
-	res, err := mfaService.Request(context.TODO(), "single_flow_single_challenge")
+	res, err := mfaService.Request(context.TODO(), "single_flow_single_challenge", nil)
 	if err != nil {
 		panic(err)
 	}

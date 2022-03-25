@@ -45,15 +45,15 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
-		return ctx, nil, errors.New("Flow not found")
+		return nil, nil, errors.New("Flow not found")
 	}
 
 	if challenge == nil {
-		return ctx, requestedFlow, nil
+		return nil, requestedFlow, nil
 	}
 	newCtx, err := requestedFlow.Validate(ctx, *challenge, *decodedJWT)
 	if err != nil {
-		return ctx, nil, err
+		return nil, nil, err
 	}
 
 	return newCtx, requestedFlow, nil
@@ -82,11 +82,28 @@ func (m *Service) Process(ctx context.Context, jwt string, challenge string, inp
 	return m.handleSolve(newCtx, *decodedJWT, challenge, input, requestFlow)
 }
 
-func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult, error) {
+func (m *Service) setContext(ctx context.Context, requestFlow flow.IFlow, input map[string]string) context.Context {
+	newCtx := ctx
+
+	if input["identifier"] != "" {
+		newCtx = requestFlow.SetIdentifier(newCtx, input["identifier"])
+	}
+	if input["jwt"] != "" {
+		newCtx = requestFlow.SetJWT(newCtx, input["jwt"])
+	}
+
+	return newCtx
+}
+
+func (m *Service) Request(ctx context.Context, flow string, input *map[string]string) (*entities.MFAResult, error) {
 	newCtx, requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil)
 	if err != nil {
 		return nil, err
 	}
+	if input != nil {
+		newCtx = m.setContext(newCtx, requestFlow, *input)
+	}
+
 	challenge := requestFlow.GetChallenges()[0]
 
 	additionalJWTData, err := requestFlow.Initialize(newCtx)

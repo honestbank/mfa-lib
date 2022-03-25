@@ -15,4 +15,8 @@ type IFlow interface {
 	GetChallenges() []string
 	GetName() string
 	Initialize(ctx context.Context) (*entities.JWTAdditions, error)
+	GetJWT(ctx context.Context) *string
+	GetIdentifier(ctx context.Context) *string
+	SetIdentifier(ctx context.Context, value string) context.Context
+	SetJWT(ctx context.Context, value string) context.Context
 }

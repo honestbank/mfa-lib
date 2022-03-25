@@ -19,6 +19,11 @@ type Service struct {
 	JWTService jwt.IJWTService
 }
 
+type FlowInput struct {
+	Identifier *string
+	JWT        *string
+}
+
 func NewMFAService(config entities.Config, jwtService jwt.IJWTService, flows map[string]flow.IFlow) *Service {
 	return &Service{
 		Flows:      flows,
@@ -82,20 +87,20 @@ func (m *Service) Process(ctx context.Context, jwt string, challenge string, inp
 	return m.handleSolve(newCtx, *decodedJWT, challenge, input, requestFlow)
 }
 
-func (m *Service) setContext(ctx context.Context, requestFlow flow.IFlow, input map[string]string) context.Context {
+func (m *Service) setContext(ctx context.Context, requestFlow flow.IFlow, input FlowInput) context.Context {
 	newCtx := ctx
 
-	if input["identifier"] != "" {
-		newCtx = requestFlow.SetIdentifier(newCtx, input["identifier"])
+	if input.Identifier != nil {
+		newCtx = requestFlow.SetIdentifier(newCtx, *input.Identifier)
 	}
-	if input["jwt"] != "" {
-		newCtx = requestFlow.SetJWT(newCtx, input["jwt"])
+	if input.JWT != nil {
+		newCtx = requestFlow.SetJWT(newCtx, *input.JWT)
 	}
 
 	return newCtx
 }
 
-func (m *Service) Request(ctx context.Context, flow string, input *map[string]string) (*entities.MFAResult, error) {
+func (m *Service) Request(ctx context.Context, flow string, input *FlowInput) (*entities.MFAResult, error) {
 	newCtx, requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil)
 	if err != nil {
 		return nil, err

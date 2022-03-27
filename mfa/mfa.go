@@ -118,7 +118,7 @@ func (m *Service) Request(ctx context.Context, flow string, input *FlowInput) (*
 
 	return m.handleRequest(ctx, entities.JWTData{
 		Flow:       flow,
-		Identifier: *requestFlow.GetIdentifier(newCtx),
+		Identifier: requestFlow.GetIdentifier(newCtx),
 		Type:       additionalJWTData.Type,
 		Meta:       additionalJWTData.Meta,
 	}, challenge, "{}", requestFlow)

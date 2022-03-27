@@ -30,7 +30,7 @@ func main() {
 		"single_flow_single_challenge": flows.NewSingleFlow(),
 	})
 
-	res, err := mfaService.Request(context.TODO(), "single_flow_single_challenge")
+	res, err := mfaService.Request(context.TODO(), "single_flow_single_challenge", nil)
 	if err != nil {
 		panic(err)
 	}

@@ -19,6 +19,11 @@ type Service struct {
 	JWTService jwt.IJWTService
 }
 
+type FlowInput struct {
+	Identifier string
+	JWT        string
+}
+
 func NewMFAService(config entities.Config, jwtService jwt.IJWTService, flows map[string]flow.IFlow) *Service {
 	return &Service{
 		Flows:      flows,
@@ -45,15 +50,15 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
-		return ctx, nil, errors.New("Flow not found")
+		return nil, nil, errors.New("Flow not found")
 	}
 
 	if challenge == nil {
-		return ctx, requestedFlow, nil
+		return nil, requestedFlow, nil
 	}
 	newCtx, err := requestedFlow.Validate(ctx, *challenge, *decodedJWT)
 	if err != nil {
-		return ctx, nil, err
+		return nil, nil, err
 	}
 
 	return newCtx, requestedFlow, nil
@@ -82,11 +87,28 @@ func (m *Service) Process(ctx context.Context, jwt string, challenge string, inp
 	return m.handleSolve(newCtx, *decodedJWT, challenge, input, requestFlow)
 }
 
-func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult, error) {
+func (m *Service) setContext(ctx context.Context, requestFlow flow.IFlow, input FlowInput) context.Context {
+	newCtx := ctx
+
+	if input.Identifier != "" {
+		newCtx = requestFlow.SetIdentifier(newCtx, input.Identifier)
+	}
+	if input.JWT != "" {
+		newCtx = requestFlow.SetJWT(newCtx, input.JWT)
+	}
+
+	return newCtx
+}
+
+func (m *Service) Request(ctx context.Context, flow string, input *FlowInput) (*entities.MFAResult, error) {
 	newCtx, requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil)
 	if err != nil {
 		return nil, err
 	}
+	if input != nil {
+		newCtx = m.setContext(newCtx, requestFlow, *input)
+	}
+
 	challenge := requestFlow.GetChallenges()[0]
 
 	additionalJWTData, err := requestFlow.Initialize(newCtx)
@@ -96,7 +118,7 @@ func (m *Service) Request(ctx context.Context, flow string) (*entities.MFAResult
 
 	return m.handleRequest(ctx, entities.JWTData{
 		Flow:       flow,
-		Identifier: additionalJWTData.Identifier,
+		Identifier: requestFlow.GetIdentifier(newCtx),
 		Type:       additionalJWTData.Type,
 		Meta:       additionalJWTData.Meta,
 	}, challenge, "{}", requestFlow)

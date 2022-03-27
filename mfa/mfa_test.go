@@ -220,6 +220,8 @@ func TestNewMFAService(t *testing.T) {
 			Type:       "",
 			Meta:       []JWTEntities.Meta{},
 		}, nil)
+		emptyString := ""
+		mockflow.EXPECT().GetIdentifier(gomock.Any()).Return(&emptyString)
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
 
@@ -261,6 +263,8 @@ func TestNewMFAService(t *testing.T) {
 			Type:       "",
 			Meta:       []JWTEntities.Meta{},
 		}, nil)
+		emptyString := ""
+		mockflow.EXPECT().GetIdentifier(gomock.Any()).Return(&emptyString)
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
 
@@ -319,6 +323,8 @@ func TestNewMFAService(t *testing.T) {
 				},
 			},
 		}, nil)
+		identifier := "identifier"
+		mockflow.EXPECT().GetIdentifier(gomock.Any()).Return(&identifier)
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
 

@@ -20,8 +20,8 @@ type Service struct {
 }
 
 type FlowInput struct {
-	Identifier *string
-	JWT        *string
+	Identifier string
+	JWT        string
 }
 
 func NewMFAService(config entities.Config, jwtService jwt.IJWTService, flows map[string]flow.IFlow) *Service {
@@ -90,11 +90,11 @@ func (m *Service) Process(ctx context.Context, jwt string, challenge string, inp
 func (m *Service) setContext(ctx context.Context, requestFlow flow.IFlow, input FlowInput) context.Context {
 	newCtx := ctx
 
-	if input.Identifier != nil {
-		newCtx = requestFlow.SetIdentifier(newCtx, *input.Identifier)
+	if input.Identifier != "" {
+		newCtx = requestFlow.SetIdentifier(newCtx, input.Identifier)
 	}
-	if input.JWT != nil {
-		newCtx = requestFlow.SetJWT(newCtx, *input.JWT)
+	if input.JWT != "" {
+		newCtx = requestFlow.SetJWT(newCtx, input.JWT)
 	}
 
 	return newCtx
@@ -118,7 +118,7 @@ func (m *Service) Request(ctx context.Context, flow string, input *FlowInput) (*
 
 	return m.handleRequest(ctx, entities.JWTData{
 		Flow:       flow,
-		Identifier: additionalJWTData.Identifier,
+		Identifier: *requestFlow.GetIdentifier(newCtx),
 		Type:       additionalJWTData.Type,
 		Meta:       additionalJWTData.Meta,
 	}, challenge, "{}", requestFlow)

@@ -47,7 +47,7 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	return &decodedJWT, nil
 }
 
-func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string) (context.Context, flow.IFlow, error) {
+func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string, input *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
 		return ctx, nil, errors.New("Flow not found")
@@ -56,7 +56,7 @@ func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities
 	if challenge == nil {
 		return ctx, requestedFlow, nil
 	}
-	newCtx, err := requestedFlow.Validate(ctx, *challenge, *decodedJWT)
+	newCtx, err := requestedFlow.Validate(ctx, *challenge, *decodedJWT, input)
 	if err != nil {
 		return ctx, nil, err
 	}
@@ -69,7 +69,7 @@ func (m *Service) Process(ctx context.Context, jwt string, challenge string, inp
 	if err != nil {
 		return nil, err
 	}
-	newCtx, requestFlow, err := m.getFlow(ctx, decodedJWT.Flow, decodedJWT, &challenge)
+	newCtx, requestFlow, err := m.getFlow(ctx, decodedJWT.Flow, decodedJWT, &challenge, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (m *Service) setContext(ctx context.Context, requestFlow flow.IFlow, input 
 }
 
 func (m *Service) Request(ctx context.Context, flow string, input *FlowInput) (*entities.MFAResult, error) {
-	newCtx, requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil)
+	newCtx, requestFlow, err := m.getFlow(ctx, flow, &entities.JWTData{}, nil, nil)
 	if err != nil {
 		return nil, err
 	}

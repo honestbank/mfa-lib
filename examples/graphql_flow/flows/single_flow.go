@@ -26,7 +26,7 @@ func (f SingleFlow) Initialize(ctx context.Context) (*JWTEntities.JWTAdditions, 
 	}, nil
 }
 
-func (f SingleFlow) Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData) error {
+func (f SingleFlow) Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData, challengeInput *string) error {
 	//TODO implement me
 	return nil
 }

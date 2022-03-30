@@ -1,0 +1,13 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: mfa-lib
+  annotations:
+    github.com/project-slug: honestbank/mfa-lib
+    sonarqube.org/project-key: honestbank_mfa-lib
+spec:
+  type: library
+  lifecycle: production
+  owner: James Trotter
+---

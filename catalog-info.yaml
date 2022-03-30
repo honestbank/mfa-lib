@@ -2,7 +2,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: mfa-service
+  name: mfa-lib
   annotations:
     github.com/project-slug: honestbank/mfa-lib
     sonarqube.org/project-key: honestbank_mfa-lib

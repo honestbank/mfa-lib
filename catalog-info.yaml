@@ -11,19 +11,3 @@ spec:
   lifecycle: unknown
   owner: James Trotter
 ---
-apiVersion: backstage.io/v1alpha1
-kind: System
-metadata:
-  name: Honestapp
-  description: "Honest Backend application"
-spec:
-  owner: Honest
-  domain: Authentication
----
-apiVersion: backstage.io/v1alpha1
-kind: Domain
-metadata:
-  name: Authentication
-  description: Authentication domain
-spec:
-  owner: Honest

@@ -37,17 +37,17 @@ func (m *MockIFlow) EXPECT() *MockIFlowMockRecorder {
 }
 
 // GetChallenges mocks base method.
-func (m *MockIFlow) GetChallenges() []string {
+func (m *MockIFlow) GetChallenges(arg0 *map[string]entities0.Challenge, arg1 *string) []string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetChallenges")
+	ret := m.ctrl.Call(m, "GetChallenges", arg0, arg1)
 	ret0, _ := ret[0].([]string)
 	return ret0
 }
 
 // GetChallenges indicates an expected call of GetChallenges.
-func (mr *MockIFlowMockRecorder) GetChallenges() *gomock.Call {
+func (mr *MockIFlowMockRecorder) GetChallenges(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChallenges", reflect.TypeOf((*MockIFlow)(nil).GetChallenges))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChallenges", reflect.TypeOf((*MockIFlow)(nil).GetChallenges), arg0, arg1)
 }
 
 // GetIdentifier mocks base method.

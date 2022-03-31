@@ -59,8 +59,8 @@ func TestNewMFAService(t *testing.T) {
 		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 
 		flowMap := map[string]flow.IFlow{
 			"test": mockflow,
@@ -140,8 +140,8 @@ func TestNewMFAService(t *testing.T) {
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().Resolve(gomock.Any()).Return(&map[string]interface{}{
 			"token": validJWT,
 		}, nil)
@@ -177,8 +177,8 @@ func TestNewMFAService(t *testing.T) {
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("Failed to solve"))
 		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
 
@@ -211,10 +211,10 @@ func TestNewMFAService(t *testing.T) {
 		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&map[string]interface{}{
 			"Reference": "test",
 		}, nil)
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().Initialize(gomock.Any()).Return(&JWTEntities.JWTAdditions{
 			Identifier: "",
 			Type:       "",
@@ -254,10 +254,10 @@ func TestNewMFAService(t *testing.T) {
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("Failed to handle challenge"))
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().Initialize(gomock.Any()).Return(&JWTEntities.JWTAdditions{
 			Identifier: "",
 			Type:       "",
@@ -310,10 +310,10 @@ func TestNewMFAService(t *testing.T) {
 		}, gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().Initialize(gomock.Any()).Return(&JWTEntities.JWTAdditions{
 			Identifier: "identifier",
 			Type:       "sometype",
@@ -367,8 +367,8 @@ func TestNewMFAService(t *testing.T) {
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().Resolve(gomock.Any()).Return(nil, errors.New("Failed to resolve"))
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
@@ -403,8 +403,8 @@ func TestNewMFAService(t *testing.T) {
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().Resolve(gomock.Any()).Return(&map[string]interface{}{}, nil)
 
 		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
@@ -437,10 +437,10 @@ func TestNewMFAService(t *testing.T) {
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
 		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("Failed to handle challenge"))
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().GetName().Return("test")
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
-		mockflow.EXPECT().GetChallenges().Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})
 		mockflow.EXPECT().Initialize(gomock.Any()).Return(&JWTEntities.JWTAdditions{
 			Identifier: "",
 			Type:       "",

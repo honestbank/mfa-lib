@@ -27,7 +27,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 				"dummy": dummyChallenge,
 			},
 		}
-		challenges := flow.GetChallenges()
+		challenges := flow.GetChallenges(nil, nil)
 
 		a.Equal(1, len(challenges))
 		a.Equal([]string{"dummy"}, challenges)

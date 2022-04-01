@@ -165,7 +165,7 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 
 	var challenges []string
 	for _, flowChallenge := range requestFlow.GetChallenges(&claims.Challenges, &challenge) {
-		if claims.Challenges[flowChallenge].Status != "passed" {
+		if claims.Challenges[flowChallenge].Status != entities.StatusPassed {
 			challenges = append(challenges, flowChallenge)
 		}
 	}
@@ -217,12 +217,12 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 	scopes := make([]string, 0)
 	claims, _ := m.generateClaims(requestFlow, decodedJWT, challenge)
 	claims.Challenges[challenge] = entities.Challenge{
-		Status: "passed",
+		Status: entities.StatusPassed,
 	}
 	token, _ := m.JWTService.GenerateToken(claims, scopes)
 	var challenges []string
 	for _, flowChallenge := range requestFlow.GetChallenges(&claims.Challenges, &challenge) {
-		if claims.Challenges[flowChallenge].Status != "passed" {
+		if claims.Challenges[flowChallenge].Status != entities.StatusPassed {
 			challenges = append(challenges, flowChallenge)
 		}
 	}

@@ -9,5 +9,5 @@ metadata:
 spec:
   type: library
   lifecycle: production
-  owner: James Trotter
+  owner: user:bludot
 ---

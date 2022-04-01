@@ -202,7 +202,7 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 		scopes := make([]string, 0)
 		claims, _ := m.generateClaims(requestFlow, decodedJWT, challenge)
 		claims.Challenges[challenge] = entities.Challenge{
-			Status: "failed",
+			Status: err.(*entities.MFAError).Code,
 		}
 		token, _ := m.JWTService.GenerateToken(claims, scopes)
 		var challenges []string

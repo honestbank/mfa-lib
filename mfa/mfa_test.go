@@ -174,7 +174,10 @@ func TestNewMFAService(t *testing.T) {
 
 		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, nil)
 
-		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New("Failed to solve"))
+		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, &entities.MFAError{
+			Code:    "FAILED",
+			Message: "Failed to solve",
+		})
 		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().GetName().Return("test")
 		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any()).Return([]string{"dummy"})

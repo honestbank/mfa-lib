@@ -6,8 +6,11 @@ metadata:
   annotations:
     github.com/project-slug: honestbank/mfa-lib
     sonarqube.org/project-key: honestbank_mfa-lib
+  tags:
+    - golang
+    - user:bludot
 spec:
   type: library
   lifecycle: production
-  owner: user:bludot
+  owner: spend-squad
 ---

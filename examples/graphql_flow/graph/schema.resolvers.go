@@ -14,7 +14,7 @@ import (
 )
 
 func (r *mutationResolver) InitializeFlow(ctx context.Context, flowName string) (*model.InitializeFlowResponse, error) {
-	result, err := r.MFAService.Request(ctx, flowName)
+	result, err := r.MFAService.Request(ctx, flowName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (r *mutationResolver) ChallengesSolveOtp(ctx context.Context, input *model.
 		return nil, err
 	}
 	log.Println(string(jsonInput))
-	result, err := r.MFAService.Process(ctx, ctx.Value("jwt").(string), "dummy", string(jsonInput), false)
+	result, err := r.MFAService.Process(ctx, ctx.Value("jwt").(string), "dummy", string(jsonInput), false, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *mutationResolver) ChallengesSolveOtp(ctx context.Context, input *model.
 }
 
 func (r *mutationResolver) ChallengesRequestOtp(ctx context.Context) (*model.RequestOTPResult, error) {
-	result, err := r.MFAService.Process(ctx, ctx.Value("jwt").(string), "dummy", "{}", true)
+	result, err := r.MFAService.Process(ctx, ctx.Value("jwt").(string), "dummy", "{}", true, nil)
 	if err != nil {
 		return nil, err
 	}

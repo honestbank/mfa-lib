@@ -1,13 +1,14 @@
 package challenges
 
 import (
-	"errors"
+	"context"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/honestbank/mfa-lib/challenge"
 	"github.com/honestbank/mfa-lib/challenge/entities"
+	mfaEntities "github.com/honestbank/mfa-lib/mfa/entities"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -25,16 +26,19 @@ type DummyChallenge struct {
 	Seed string `json:"seed"`
 }
 
-func (c *DummyChallenge) Solve(body map[string]interface{}) (*map[string]interface{}, error) {
+func (c *DummyChallenge) Solve(ctx context.Context, body map[string]interface{}) (*map[string]interface{}, error) {
 	log.Println("seed:", c.Seed)
 	log.Println("password:", body["code"])
 	if body["reference"] == c.Seed && body["code"] == "123" {
 		return nil, nil
 	}
-	return nil, errors.New("failed!")
+	return nil, &mfaEntities.MFAError{
+		Code:    "failed",
+		Message: "failed",
+	}
 }
 
-func (c *DummyChallenge) Request(body map[string]interface{}) (*map[string]interface{}, error) {
+func (c *DummyChallenge) Request(ctx context.Context, body map[string]interface{}) (*map[string]interface{}, error) {
 	rand.Seed(time.Now().UnixNano())
 	c.Seed = randSeq(10)
 	log.Println("Seed:", c.Seed)

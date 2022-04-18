@@ -1,8 +1,9 @@
 package entities
 
 type MFAError struct {
-	Code    string
-	Message string
+	Code     string
+	Message  string
+	Metadata interface{}
 }
 
 func (e MFAError) Error() string {

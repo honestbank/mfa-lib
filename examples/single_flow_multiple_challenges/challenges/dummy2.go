@@ -2,13 +2,13 @@ package challenges
 
 import (
 	"context"
-	"errors"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/honestbank/mfa-lib/challenge"
 	"github.com/honestbank/mfa-lib/challenge/entities"
+	mfaEntities "github.com/honestbank/mfa-lib/mfa/entities"
 )
 
 type DummyTwoChallenge struct {
@@ -22,7 +22,10 @@ func (c *DummyTwoChallenge) Solve(ctx context.Context, body map[string]interface
 	if body["username"] == "admin" && body["password"].(string) == c.Seed {
 		return nil, nil
 	}
-	return nil, errors.New("failed!")
+	return nil, &mfaEntities.MFAError{
+		Code:    "failed",
+		Message: "failed",
+	}
 }
 
 func (c *DummyTwoChallenge) Request(ctx context.Context, body map[string]interface{}) (*map[string]interface{}, error) {

@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/99designs/gqlgen v0.15.1
-	github.com/honestbank/mfa-lib v1.5.2
+	github.com/honestbank/mfa-lib v1.10.1
 	github.com/vektah/gqlparser/v2 v2.2.0
 )
 

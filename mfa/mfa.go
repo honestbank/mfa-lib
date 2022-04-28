@@ -38,8 +38,11 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	if len(base64Claims) != 3 {
 		return nil, errors.New("Invalid JWT")
 	}
-	claimsJson, _ := base64.StdEncoding.DecodeString(base64Claims[1])
-	err := json.Unmarshal(claimsJson, &decodedJWT)
+	claimsJson, err := base64.StdEncoding.WithPadding(base64.NoPadding).DecodeString(base64Claims[1])
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(claimsJson, &decodedJWT)
 	if err != nil {
 		return nil, err
 	}

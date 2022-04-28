@@ -47,7 +47,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Process", func(t *testing.T) {
-		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0=."
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}
@@ -103,7 +103,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Process_invalid_jwt", func(t *testing.T) {
-		invalidJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fQ==."
+		invalidJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fQ."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}
@@ -124,7 +124,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Process_HandleSolve", func(t *testing.T) {
-		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0=."
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}
@@ -161,7 +161,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Process_Solve_error", func(t *testing.T) {
-		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0=."
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}
@@ -198,7 +198,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Request_handle_reference", func(t *testing.T) {
-		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0=."
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}
@@ -354,7 +354,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Process_solve_error", func(t *testing.T) {
-		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0=."
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}
@@ -390,7 +390,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Process_solve_no_token", func(t *testing.T) {
-		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0=."
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}

@@ -103,7 +103,7 @@ func TestNewMFAService(t *testing.T) {
 	})
 
 	t.Run("MFA_Process_invalid_jwt", func(t *testing.T) {
-		invalidJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fQ==."
+		invalidJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fQ."
 		a := assert.New(t)
 		ctrl := gomock.NewController(t)
 		config := entities.Config{}

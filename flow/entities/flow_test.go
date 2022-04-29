@@ -20,11 +20,12 @@ func TestFlow_GetChallenges(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+		dummyChallenge.EXPECT().GetName().Return("dummy")
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 		challenges := flow.GetChallenges(nil, nil, true)
@@ -37,11 +38,12 @@ func TestFlow_GetChallenges(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+		dummyChallenge.EXPECT().GetName().Return("dummy")
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -64,11 +66,12 @@ func TestFlow_GetChallenges(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+		dummyChallenge.EXPECT().GetName().Return("dummy")
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -94,8 +97,8 @@ func TestFlow_GetChallenges(t *testing.T) {
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -116,11 +119,12 @@ func TestFlow_GetChallenges(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+		dummyChallenge.EXPECT().GetName().Return("dummy")
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -141,11 +145,12 @@ func TestFlow_GetChallenges(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+		dummyChallenge.EXPECT().GetName().Return("dummy")
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -169,11 +174,12 @@ func TestFlow_GetChallenges(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		dummyChallenge := mocks.NewMockIChallenge(ctrl)
+		dummyChallenge.EXPECT().GetName().Return("dummy")
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -199,8 +205,8 @@ func TestFlow_GetChallenges(t *testing.T) {
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -226,8 +232,8 @@ func TestFlow_GetChallenges(t *testing.T) {
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -246,8 +252,8 @@ func TestFlow_GetChallenges(t *testing.T) {
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -265,8 +271,8 @@ func TestFlow_GetChallenges(t *testing.T) {
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -285,8 +291,8 @@ func TestFlow_GetChallenges(t *testing.T) {
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 
@@ -304,8 +310,8 @@ func TestFlow_GetChallenges(t *testing.T) {
 
 		flow := entities.Flow{
 			Name: "test",
-			Challenges: map[string]challenge.IChallenge{
-				"dummy": dummyChallenge,
+			Challenges: []challenge.IChallenge{
+				dummyChallenge,
 			},
 		}
 

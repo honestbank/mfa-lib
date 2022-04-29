@@ -34,6 +34,20 @@ func (m *MockIChallenge) EXPECT() *MockIChallengeMockRecorder {
 	return m.recorder
 }
 
+// GetName mocks base method.
+func (m *MockIChallenge) GetName() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetName")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetName indicates an expected call of GetName.
+func (mr *MockIChallengeMockRecorder) GetName() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetName", reflect.TypeOf((*MockIChallenge)(nil).GetName))
+}
+
 // Request mocks base method.
 func (m *MockIChallenge) Request(arg0 context.Context, arg1 map[string]interface{}) (*map[string]interface{}, error) {
 	m.ctrl.T.Helper()

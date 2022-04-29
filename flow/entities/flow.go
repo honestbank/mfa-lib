@@ -10,8 +10,8 @@ import (
 )
 
 type Flow struct {
-	Name       string                                `json:"name"`
-	Challenges map[string]challengeEntity.IChallenge `json:"challenges"`
+	Name       string                       `json:"name"`
+	Challenges []challengeEntity.IChallenge `json:"challenges"`
 }
 
 func (f Flow) GetName() string {
@@ -27,11 +27,27 @@ func (f Flow) Solve(ctx context.Context, challenge string, input string, JWTData
 	if err != nil {
 		return nil, err
 	}
-	if challenge, ok := f.Challenges[challenge]; ok {
-		return challenge.Solve(ctx, marshaledInput)
+	if ichallenge, ok := f.GetChallenge(challenge); ok == nil {
+		return ichallenge.Solve(ctx, marshaledInput)
 	}
 
 	return nil, errors.New("Challenge not found")
+}
+
+func (f Flow) GetChallenge(name string) (challengeEntity.IChallenge, error) {
+	var challenge challengeEntity.IChallenge
+	for _, c := range f.Challenges {
+		if c.GetName() == name {
+			challenge = c
+
+			break
+		}
+	}
+	if challenge == nil {
+		return nil, errors.New("Challenge not found")
+	}
+
+	return challenge, nil
 }
 
 func (f Flow) Request(ctx context.Context, challenge string, input string, JWTData mfaEntities.JWTData) (*map[string]interface{}, error) {
@@ -40,8 +56,9 @@ func (f Flow) Request(ctx context.Context, challenge string, input string, JWTDa
 	if err != nil {
 		return nil, err
 	}
-	if challenge, ok := f.Challenges[challenge]; ok {
-		return challenge.Request(ctx, marshaledInput)
+
+	if ichallenge, ok := f.GetChallenge(challenge); ok == nil {
+		return ichallenge.Request(ctx, marshaledInput)
 	}
 
 	return nil, errors.New("Challenge not found")
@@ -77,8 +94,8 @@ func (f Flow) GetJWT(ctx context.Context) *string {
 
 func (f Flow) GetChallenges(challengesStatus *map[string]mfaEntities.Challenge, challenge *string, getAll bool) []string {
 	var challenges []string
-	for k := range f.Challenges {
-		challenges = append(challenges, k)
+	for _, k := range f.Challenges {
+		challenges = append(challenges, k.GetName())
 	}
 
 	return challenges

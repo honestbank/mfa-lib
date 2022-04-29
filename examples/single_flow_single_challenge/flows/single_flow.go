@@ -40,8 +40,8 @@ func (f SingleFlow) Resolve(jwtData mfaEntities.JWTData) (*map[string]interface{
 func NewSingleFlow() flow.IFlow {
 	flow := entities.Flow{
 		Name: "single_flow_single_challenge",
-		Challenges: map[string]challenge.IChallenge{
-			"dummy": challenges.NewDummyChallenge(),
+		Challenges: []challenge.IChallenge{
+			challenges.NewDummyChallenge(),
 		},
 	}
 	return &SingleFlow{

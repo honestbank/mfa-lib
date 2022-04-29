@@ -40,9 +40,9 @@ func (f SingleFlow) Initialize(ctx context.Context) (*JWTEntities.JWTAdditions, 
 func NewSingleFlow() flow.IFlow {
 	flow := entities.Flow{
 		Name: "single_flow_single_challenge",
-		Challenges: map[string]challenge.IChallenge{
-			"dummy":  challenges.NewDummyChallenge(),
-			"dummy2": challenges.NewDummyTwoChallenge(),
+		Challenges: []challenge.IChallenge{
+			challenges.NewDummyChallenge(),
+			challenges.NewDummyTwoChallenge(),
 		},
 	}
 	return &SingleFlow{

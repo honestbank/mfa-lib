@@ -39,7 +39,7 @@ func (c *DummyTwoChallenge) Request(ctx context.Context, body map[string]interfa
 
 func NewDummyTwoChallenge() challenge.IChallenge {
 	dummyChallenge := entities.Challenge{
-		Name: "dummy",
+		Name: "dummy2",
 	}
 	return &DummyTwoChallenge{
 		Challenge: dummyChallenge,

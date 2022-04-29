@@ -27,7 +27,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 				"dummy": dummyChallenge,
 			},
 		}
-		challenges := flow.GetChallenges(nil, nil)
+		challenges := flow.GetChallenges(nil, nil, true)
 
 		a.Equal(1, len(challenges))
 		a.Equal([]string{"dummy"}, challenges)
@@ -51,7 +51,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
-					Status: "pending",
+					Status: "PENDING",
 				},
 			},
 		})
@@ -78,7 +78,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
-					Status: "pending",
+					Status: "PENDING",
 				},
 			},
 		})
@@ -103,7 +103,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
-					Status: "pending",
+					Status: "PENDING",
 				},
 			},
 		})
@@ -128,7 +128,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
-					Status: "pending",
+					Status: "PENDING",
 				},
 			},
 		})
@@ -155,7 +155,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
-					Status: "pending",
+					Status: "PENDING",
 				},
 			},
 		})
@@ -181,7 +181,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
-					Status: "pending",
+					Status: "PENDING",
 				},
 			},
 		})
@@ -208,7 +208,7 @@ func TestFlow_GetChallenges(t *testing.T) {
 			Flow: "test",
 			Challenges: map[string]mfaEntities.Challenge{
 				"dummy": {
-					Status: "pending",
+					Status: "PENDING",
 				},
 			},
 		})

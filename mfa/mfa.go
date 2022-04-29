@@ -112,29 +112,38 @@ func (m *Service) Request(ctx context.Context, flow string, input *FlowInput) (*
 		newCtx = m.setContext(newCtx, requestFlow, *input)
 	}
 
-	challenge := requestFlow.GetChallenges(nil, nil)[0]
+	challenge := requestFlow.GetChallenges(nil, nil, true)[0]
 
 	additionalJWTData, err := requestFlow.Initialize(newCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	return m.handleRequest(ctx, entities.JWTData{
+	scopes := make([]string, 0)
+	claims, _ := m.generateClaims(requestFlow, entities.JWTData{
 		Flow:       flow,
 		Identifier: requestFlow.GetIdentifier(newCtx),
 		Type:       additionalJWTData.Type,
 		Meta:       additionalJWTData.Meta,
-	}, challenge, "{}", requestFlow)
+	}, nil)
+	token, _ := m.JWTService.GenerateToken(claims, scopes)
+	var challenges []string
+	challenges = append(challenges, requestFlow.GetChallenges(&claims.Challenges, &challenge, false)...)
+
+	return &entities.MFAResult{
+		Token:      token,
+		Challenges: challenges,
+	}, nil
 }
 
-func (m *Service) generateClaims(requestFlow flow.IFlow, jwtData entities.JWTData, challenge string) (entities.JWTData, error) {
+func (m *Service) generateClaims(requestFlow flow.IFlow, jwtData entities.JWTData, challenge *string) (entities.JWTData, error) {
 	var claims entities.JWTData
 	claims.Meta = jwtData.Meta
 	claims.Identifier = jwtData.Identifier
 	claims.Type = jwtData.Type
 	claims.Flow = requestFlow.GetName()
 	claims.Challenges = map[string]entities.Challenge{}
-	challenges := requestFlow.GetChallenges(&claims.Challenges, &challenge)
+	challenges := requestFlow.GetChallenges(&claims.Challenges, challenge, true)
 
 	for _, challenge := range challenges {
 		jwtDataClaim := jwtData.Challenges[challenge]
@@ -147,7 +156,7 @@ func (m *Service) generateClaims(requestFlow flow.IFlow, jwtData entities.JWTDat
 func (m *Service) getChallengeStatus(claimStatus string) entities.Challenge {
 	if claimStatus == "" {
 		return entities.Challenge{
-			Status: "pending",
+			Status: "PENDING",
 		}
 	}
 
@@ -163,11 +172,11 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 	resultJsonString := string(resultJson)
 
 	scopes := make([]string, 0)
-	claims, _ := m.generateClaims(requestFlow, decodedJWT, challenge)
+	claims, _ := m.generateClaims(requestFlow, decodedJWT, &challenge)
 	token, _ := m.JWTService.GenerateToken(claims, scopes)
 
 	var challenges []string
-	for _, flowChallenge := range requestFlow.GetChallenges(&claims.Challenges, &challenge) {
+	for _, flowChallenge := range requestFlow.GetChallenges(&claims.Challenges, &challenge, false) {
 		if claims.Challenges[flowChallenge].Status != entities.StatusPassed {
 			challenges = append(challenges, flowChallenge)
 		}
@@ -201,15 +210,29 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 
 	resultJson, _ := json.Marshal(result)
 	resultJsonString := string(resultJson)
+	scopes := make([]string, 0)
 	if err != nil {
-		scopes := make([]string, 0)
-		claims, _ := m.generateClaims(requestFlow, decodedJWT, challenge)
+		claims, _ := m.generateClaims(requestFlow, decodedJWT, &challenge)
 		claims.Challenges[challenge] = entities.Challenge{
 			Status: err.(*entities.MFAError).Code,
 		}
-		token, _ := m.JWTService.GenerateToken(claims, scopes)
+
 		var challenges []string
-		challenges = append(challenges, requestFlow.GetChallenges(&claims.Challenges, &challenge)...)
+		challenges = append(challenges, requestFlow.GetChallenges(&claims.Challenges, &challenge, false)...)
+
+		for _, flowChallenge := range challenges {
+			if flowChallenge == challenge {
+				claims.Challenges[flowChallenge] = entities.Challenge{
+					Status: err.(*entities.MFAError).Code,
+				}
+			} else {
+				claims.Challenges[flowChallenge] = entities.Challenge{
+					Status: entities.StatusPending,
+				}
+			}
+		}
+
+		token, _ := m.JWTService.GenerateToken(claims, scopes)
 
 		return &entities.MFAResult{
 			Token:      token,
@@ -217,23 +240,26 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 		}, err
 	}
 
-	scopes := make([]string, 0)
-	claims, _ := m.generateClaims(requestFlow, decodedJWT, challenge)
+	claims, _ := m.generateClaims(requestFlow, decodedJWT, &challenge)
 	claims.Challenges[challenge] = entities.Challenge{
 		Status: entities.StatusPassed,
 	}
-	token, _ := m.JWTService.GenerateToken(claims, scopes)
+
 	var challenges []string
-	for _, flowChallenge := range requestFlow.GetChallenges(&claims.Challenges, &challenge) {
-		if claims.Challenges[flowChallenge].Status != entities.StatusPassed {
-			challenges = append(challenges, flowChallenge)
-		}
-	}
-	if len(challenges) > 0 {
+	challenges = append(challenges, requestFlow.GetChallenges(&claims.Challenges, &challenge, false)...)
+	token, _ := m.JWTService.GenerateToken(claims, scopes)
+
+	if len(challenges) > 1 {
 		return &entities.MFAResult{
 			Token:      token,
 			Challenges: challenges,
 			Metadata:   &resultJsonString,
+		}, nil
+	}
+	if len(challenges) == 1 && claims.Challenges[challenges[0]].Status != entities.StatusPassed {
+		return &entities.MFAResult{
+			Token:      token,
+			Challenges: challenges,
 		}, nil
 	}
 	resolveRes, err := requestFlow.Resolve(decodedJWT)
@@ -256,7 +282,7 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 
 	return &entities.MFAResult{
 		Token:      resolveToken,
-		Challenges: challenges,
+		Challenges: nil,
 		Metadata:   &resultJsonString,
 	}, nil
 }

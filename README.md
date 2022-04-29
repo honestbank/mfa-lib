@@ -173,7 +173,7 @@ challenge name, and JWTData is passed to the function.
 ```go
 func (f SingleFlow) Validate(ctx context.Context, challenge string, JWTData mfaEntities.JWTData) error {
 	// can only take dummy2 if dummy is done
-	if challenge == "dummy2" && JWTData.Challenges["dummy"].Status == "pending" {
+	if challenge == "dummy2" && JWTData.Challenges["dummy"].Status == "PENDING" {
         return errors.New("dummy challenge is not available")
     }
 	return nil

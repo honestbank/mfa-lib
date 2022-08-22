@@ -175,6 +175,12 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 	claims, _ := m.generateClaims(requestFlow, decodedJWT, &challenge)
 	token, _ := m.JWTService.GenerateToken(claims, scopes)
 
+	if err != nil {
+		claims.Challenges[challenge] = entities.Challenge{
+			Status: err.(*entities.MFAError).Code,
+		}
+	}
+
 	var challenges []string
 	for _, flowChallenge := range requestFlow.GetChallenges(&claims.Challenges, &challenge, false) {
 		if claims.Challenges[flowChallenge].Status != entities.StatusPassed {

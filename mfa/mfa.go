@@ -176,7 +176,7 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 
 	scopes := make([]string, 0)
 	claims, _ := m.generateClaims(requestFlow, decodedJWT, &challenge)
-	token, _ := m.JWTService.GenerateToken(claims, scopes)
+	token, jwtErr := m.JWTService.GenerateToken(claims, scopes)
 
 	if err != nil {
 		claims.Challenges[challenge] = entities.Challenge{
@@ -189,6 +189,13 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 		if claims.Challenges[flowChallenge].Status != entities.StatusPassed {
 			challenges = append(challenges, flowChallenge)
 		}
+	}
+
+	if jwtErr != nil {
+		return &entities.MFAResult{
+			Token:      token,
+			Challenges: challenges,
+		}, err
 	}
 
 	if err != nil {
@@ -241,8 +248,8 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 			}
 		}
 
-		token, err := m.JWTService.GenerateToken(claims, scopes)
-		if err != nil {
+		token, jwtErr := m.JWTService.GenerateToken(claims, scopes)
+		if jwtErr != nil {
 			return &entities.MFAResult{
 				Token:      "",
 				Challenges: challenges,

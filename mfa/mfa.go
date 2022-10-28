@@ -126,7 +126,10 @@ func (m *Service) Request(ctx context.Context, flow string, input *FlowInput) (*
 		Type:       additionalJWTData.Type,
 		Meta:       additionalJWTData.Meta,
 	}, nil)
-	token, _ := m.JWTService.GenerateToken(claims, scopes)
+	token, err := m.JWTService.GenerateToken(claims, scopes)
+	if err != nil {
+		return nil, err
+	}
 	var challenges []string
 	challenges = append(challenges, requestFlow.GetChallenges(&claims.Challenges, &challenge, false)...)
 
@@ -173,7 +176,7 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 
 	scopes := make([]string, 0)
 	claims, _ := m.generateClaims(requestFlow, decodedJWT, &challenge)
-	token, _ := m.JWTService.GenerateToken(claims, scopes)
+	token, jwtErr := m.JWTService.GenerateToken(claims, scopes)
 
 	if err != nil {
 		claims.Challenges[challenge] = entities.Challenge{
@@ -186,6 +189,13 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 		if claims.Challenges[flowChallenge].Status != entities.StatusPassed {
 			challenges = append(challenges, flowChallenge)
 		}
+	}
+
+	if jwtErr != nil {
+		return &entities.MFAResult{
+			Token:      token,
+			Challenges: challenges,
+		}, err
 	}
 
 	if err != nil {
@@ -238,7 +248,13 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 			}
 		}
 
-		token, _ := m.JWTService.GenerateToken(claims, scopes)
+		token, jwtErr := m.JWTService.GenerateToken(claims, scopes)
+		if jwtErr != nil {
+			return &entities.MFAResult{
+				Token:      "",
+				Challenges: challenges,
+			}, err
+		}
 
 		return &entities.MFAResult{
 			Token:      token,
@@ -253,7 +269,14 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 
 	var challenges []string
 	challenges = append(challenges, requestFlow.GetChallenges(&claims.Challenges, &challenge, false)...)
-	token, _ := m.JWTService.GenerateToken(claims, scopes)
+	token, err := m.JWTService.GenerateToken(claims, scopes)
+	if err != nil {
+		return &entities.MFAResult{
+			Token:      "",
+			Challenges: challenges,
+			Metadata:   &resultJsonString,
+		}, err
+	}
 
 	if len(challenges) > 1 {
 		return &entities.MFAResult{

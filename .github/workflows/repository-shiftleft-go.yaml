@@ -2,7 +2,7 @@
 # This workflow integrates ShiftLeft NG SAST with GitHub
 # Visit https://docs.shiftleft.io for help
 ---
-name: repository-shiftleft-go
+name: shiftleft-go
 permissions:
   contents: read
 
@@ -26,8 +26,8 @@ env:
   APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
 
 jobs:
-  repository-shiftleft-go:
-    name: repository-shiftleft-go
+  shiftleft-go:
+    name: shiftleft-go
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:

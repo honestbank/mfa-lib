@@ -1,0 +1,28 @@
+# yamllint disable rule:line-length
+# Use template from https://github.com/honestbank/workflows/tree/main/examples/repository-workflows
+---
+name: "repository-shiftleft-go"
+permissions: read-all
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # schedule a job to run every day at 17:30 UTC
+    - cron: '30 17 * * *'
+
+jobs:
+  repository-shiftleft-go:
+    name: repository-shiftleft-go
+    uses: honestbank/workflows/.github/workflows/shared-shiftleft-go.yaml@main
+    with:
+      repo_name: ${{ github.event.repository.name }}
+    secrets: inherit

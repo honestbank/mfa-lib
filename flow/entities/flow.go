@@ -92,7 +92,7 @@ func (f Flow) GetJWT(ctx context.Context) *string {
 	return nil
 }
 
-func (f Flow) GetChallenges(challengesStatus *map[string]mfaEntities.Challenge, challenge *string, getAll bool) []string {
+func (f Flow) GetChallenges(ctx context.Context, challengesStatus *map[string]mfaEntities.Challenge, challenge *string, getAll bool) []string {
 	var challenges []string
 	for _, k := range f.Challenges {
 		challenges = append(challenges, k.GetName())

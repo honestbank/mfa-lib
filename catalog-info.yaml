@@ -8,7 +8,9 @@ metadata:
     github.com/project-slug: honestbank/mfa-lib
     sonarqube.org/project-key: honestbank_mfa-lib
   tags:
+    - idempotent:false
     - language:golang
+    - stateless:true
 spec:
   type: library
   lifecycle: production

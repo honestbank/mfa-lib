@@ -1,3 +1,4 @@
+# nonk8s
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -7,9 +8,10 @@ metadata:
     github.com/project-slug: honestbank/mfa-lib
     sonarqube.org/project-key: honestbank_mfa-lib
   tags:
+    - idempotent:false
     - language:golang
+    - stateless:true
 spec:
   type: library
   lifecycle: production
   owner: group:spend-squad
----

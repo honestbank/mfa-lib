@@ -172,7 +172,7 @@ func TestNewMFAService(t *testing.T) {
 			"test": mockflow,
 		}
 
-		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return(validJWT, errors.New("failed"))
+		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return("", errors.New("GenerateToken error"))
 
 		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
@@ -185,7 +185,7 @@ func TestNewMFAService(t *testing.T) {
 		_, err := mfaService.Process(context.TODO(), validJWT, "dummy", "{}", false, nil)
 
 		a.Error(err)
-		a.Equal("failed", err.Error())
+		a.Equal("GenerateToken error", err.Error())
 	})
 
 	t.Run("MFA_Process_Solve_error", func(t *testing.T) {
@@ -222,6 +222,43 @@ func TestNewMFAService(t *testing.T) {
 
 		a.Error(err)
 		a.Equal("Failed to solve", err.Error())
+		a.Equal(expectedResult, *result)
+	})
+
+	t.Run("MFA_Process_Solve_error_GenerateToken_error_happens", func(t *testing.T) {
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
+		a := assert.New(t)
+		ctrl := gomock.NewController(t)
+		config := entities.Config{}
+		jwtService := mocks.NewMockIJWTService(ctrl)
+		mockflow := mocks.NewMockIFlow(ctrl)
+
+		flowMap := map[string]flow.IFlow{
+			"test": mockflow,
+		}
+
+		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return("", errors.New("GenerateToken error"))
+
+		mockflow.EXPECT().Solve(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, &entities.MFAError{
+			Code:    "FAILED",
+			Message: "Failed to solve",
+		})
+		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
+		mockflow.EXPECT().GetName().Return("test")
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+
+		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
+
+		result, err := mfaService.Process(context.TODO(), validJWT, "dummy", "{}", false, nil)
+
+		expectedResult := entities.MFAResult{
+			Token:      "",
+			Challenges: []string{"dummy"},
+		}
+
+		a.Error(err)
+		a.Equal("GenerateToken error", err.Error())
 		a.Equal(expectedResult, *result)
 	})
 
@@ -431,6 +468,41 @@ func TestNewMFAService(t *testing.T) {
 
 		a.Error(err)
 		a.Equal("error", err.Error())
+		a.Equal(expectedResult, *result)
+	})
+
+	t.Run("MFA_Process_requestChallenge_handle_jwtError", func(t *testing.T) {
+		validJWT := "nil.eyJmbG93IjoidGVzdCIsImNoYWxsZW5nZXMiOnsiZHVtbXkiOnsic3RhdHVzIjoicGVuZGluZyJ9fX0."
+		a := assert.New(t)
+		ctrl := gomock.NewController(t)
+		config := entities.Config{}
+		jwtService := mocks.NewMockIJWTService(ctrl)
+		mockflow := mocks.NewMockIFlow(ctrl)
+
+		flowMap := map[string]flow.IFlow{
+			"test": mockflow,
+		}
+
+		jwtService.EXPECT().GenerateToken(gomock.Any(), gomock.Any()).Return("", errors.New("GenerateToken error"))
+
+		mockflow.EXPECT().Request(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
+		mockflow.EXPECT().Validate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
+		mockflow.EXPECT().GetName().Return("test")
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+		mockflow.EXPECT().GetChallenges(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]string{"dummy"})
+
+		mfaService := mfa.NewMFAService(config, jwtService, flowMap)
+
+		result, err := mfaService.Process(context.TODO(), validJWT, "dummy", "{}", true, nil)
+
+		expectedResult := entities.MFAResult{
+			Token:      "",
+			Challenges: []string{"dummy"},
+			Metadata:   nil,
+		}
+
+		a.Error(err)
+		a.Equal("GenerateToken error", err.Error())
 		a.Equal(expectedResult, *result)
 	})
 

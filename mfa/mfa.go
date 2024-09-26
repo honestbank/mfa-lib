@@ -202,7 +202,7 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 		return &entities.MFAResult{
 			Token:      token,
 			Challenges: challenges,
-		}, err
+		}, jwtErr
 	}
 
 	if err != nil {
@@ -260,7 +260,7 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 			return &entities.MFAResult{
 				Token:      "",
 				Challenges: challenges,
-			}, err
+			}, jwtErr
 		}
 
 		return &entities.MFAResult{

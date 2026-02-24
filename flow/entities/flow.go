@@ -31,7 +31,7 @@ func (f Flow) Solve(ctx context.Context, challenge string, input string, JWTData
 		return ichallenge.Solve(ctx, marshaledInput)
 	}
 
-	return nil, errors.New("Challenge not found")
+	return nil, errors.New("challenge not found")
 }
 
 func (f Flow) GetChallenge(name string) (challengeEntity.IChallenge, error) {
@@ -44,7 +44,7 @@ func (f Flow) GetChallenge(name string) (challengeEntity.IChallenge, error) {
 		}
 	}
 	if challenge == nil {
-		return nil, errors.New("Challenge not found")
+		return nil, errors.New("challenge not found")
 	}
 
 	return challenge, nil
@@ -61,7 +61,7 @@ func (f Flow) Request(ctx context.Context, challenge string, input string, JWTDa
 		return ichallenge.Request(ctx, marshaledInput)
 	}
 
-	return nil, errors.New("Challenge not found")
+	return nil, errors.New("challenge not found")
 }
 
 func (f Flow) SetIdentifier(ctx context.Context, value string) context.Context {

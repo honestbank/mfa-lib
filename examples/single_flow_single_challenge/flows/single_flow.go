@@ -44,6 +44,7 @@ func NewSingleFlow() flow.IFlow {
 			challenges.NewDummyChallenge(),
 		},
 	}
+
 	return &SingleFlow{
 		flow,
 	}

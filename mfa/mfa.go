@@ -36,7 +36,7 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 	var decodedJWT entities.JWTData
 	base64Claims := strings.Split(jwt, ".")
 	if len(base64Claims) != 3 {
-		return nil, errors.New("Invalid JWT")
+		return nil, errors.New("invalid JWT")
 	}
 	claimsJson, err := base64.StdEncoding.WithPadding(base64.NoPadding).DecodeString(base64Claims[1])
 	if err != nil {
@@ -53,7 +53,7 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string, input *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
-		return ctx, nil, errors.New("Flow not found")
+		return ctx, nil, errors.New("flow not found")
 	}
 
 	if challenge == nil {
@@ -312,7 +312,7 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 			Token:      token,
 			Challenges: challenges,
 			Metadata:   &resultJsonString,
-		}, errors.New("Unable to resolve flow")
+		}, errors.New("unable to resolve flow")
 	}
 	resolveToken := resolveTokenRef.(string)
 

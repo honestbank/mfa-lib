@@ -1,11 +1,14 @@
 module github.com/honestbank/mfa-lib
 
-go 1.16
+go 1.26
 
 require (
 	github.com/golang/mock v1.6.0
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
-	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
-	golang.org/x/text v0.3.8 // indirect
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )

@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"math/rand"
-	"time"
 
 	"github.com/honestbank/mfa-lib/challenge"
 	"github.com/honestbank/mfa-lib/challenge/entities"
@@ -18,6 +17,7 @@ func randSeq(n int) string {
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
+
 	return string(b)
 }
 
@@ -32,6 +32,7 @@ func (c *DummyChallenge) Solve(ctx context.Context, body map[string]interface{})
 	if body["username"] == "admin" && body["password"].(string) == c.Seed {
 		return nil, nil
 	}
+
 	return nil, &mfaEntities.MFAError{
 		Code:    "failed",
 		Message: "failed",
@@ -39,9 +40,9 @@ func (c *DummyChallenge) Solve(ctx context.Context, body map[string]interface{})
 }
 
 func (c *DummyChallenge) Request(ctx context.Context, body map[string]interface{}) (*map[string]interface{}, error) {
-	rand.Seed(time.Now().UnixNano())
 	c.Seed = randSeq(10)
 	log.Println("Seed:", c.Seed)
+
 	return &map[string]interface{}{
 		"Reference": c.Seed,
 	}, nil
@@ -51,6 +52,7 @@ func NewDummyChallenge() challenge.IChallenge {
 	dummyChallenge := entities.Challenge{
 		Name: "dummy",
 	}
+
 	return &DummyChallenge{
 		Challenge: dummyChallenge,
 	}

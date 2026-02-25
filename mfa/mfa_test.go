@@ -98,7 +98,7 @@ func TestNewMFAService(t *testing.T) {
 		result, err := mfaService.Process(context.TODO(), "", "dummy", "{}", true, nil)
 
 		a.Error(err)
-		a.Equal("Invalid JWT", err.Error())
+		a.Equal("invalid JWT", err.Error())
 		a.Nil(result)
 	})
 
@@ -576,7 +576,7 @@ func TestNewMFAService(t *testing.T) {
 		}
 
 		a.Error(err)
-		a.Equal("Unable to resolve flow", err.Error())
+		a.Equal("unable to resolve flow", err.Error())
 		a.Equal(expectedResult, *result)
 	})
 }

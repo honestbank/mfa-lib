@@ -17,6 +17,7 @@ type JwtService struct {
 
 func (j *JwtService) GenerateToken(claims entities.JWTData, scopes []string) (string, error) {
 	claimsJSON, _ := json.Marshal(claims)
+
 	return "nil." + base64.StdEncoding.EncodeToString(claimsJSON) + ".", nil
 }
 
@@ -78,5 +79,4 @@ func main() {
 	}
 	resJSON, _ = json.Marshal(*res)
 	log.Println(string(resJSON))
-
 }

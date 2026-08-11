@@ -5,7 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
+
+	"github.com/samber/lo"
 
 	"github.com/honestbank/mfa-lib/flow"
 	"github.com/honestbank/mfa-lib/jwt"
@@ -53,7 +56,7 @@ func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
 func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string, input *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
-		return ctx, nil, errors.New("flow not found")
+		return ctx, nil, fmt.Errorf("flow %s not found in challenge %s", flow, lo.FromPtrOr(challenge, "nil"))
 	}
 
 	if challenge == nil {

@@ -1,6 +1,6 @@
 module github.com/honestbank/mfa-lib/examples/graphql_flow
 
-go 1.25.0
+go 1.26
 
 require (
 	github.com/99designs/gqlgen v0.17.93

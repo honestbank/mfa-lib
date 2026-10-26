@@ -194,6 +194,24 @@ func (f SingleFlow) Resolve(jwtData mfaEntities.JWTData) (*map[string]interface{
 ```
 
 ## MFA Service
+The MFA service needs a JWT service that implements `IJWTService`:
+
+```go
+type IJWTService interface {
+	GenerateToken(claims entities.JWTData, scopes []string) (string, error)
+	VerifyToken(token string) (*entities.JWTData, error)
+}
+```
+
+`GenerateToken` signs the claims that the MFA service gives it. `VerifyToken` must verify the signature with a
+fixed expected algorithm (never the `alg` in the token header), check the expiry and the audience, and return the
+verified claims. If a check fails, it must return an error.
+
+The library trusts only what `VerifyToken` returns. `Process` calls `VerifyToken` first and reads the flow, the
+challenge statuses and the identifier only from the verified claims. If `VerifyToken` returns an error or no claims,
+`Process` returns an error and does not call the flow. The examples sign with HMAC-SHA256 and a random demo key.
+Production code must sign with asymmetric keys from its key service.
+
 Given the above has been done, calling the MFA service is really simple and only requires 2 functions:
 
 **Reqest first challenge of the flow**

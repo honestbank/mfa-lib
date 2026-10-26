@@ -2,11 +2,9 @@ package mfa
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/samber/lo"
 
@@ -35,24 +33,6 @@ func NewMFAService(config entities.Config, jwtService jwt.IJWTService, flows map
 	}
 }
 
-func (m *Service) decodeJWT(jwt string) (*entities.JWTData, error) {
-	var decodedJWT entities.JWTData
-	base64Claims := strings.Split(jwt, ".")
-	if len(base64Claims) != 3 {
-		return nil, errors.New("invalid JWT")
-	}
-	claimsJson, err := base64.StdEncoding.WithPadding(base64.NoPadding).DecodeString(base64Claims[1])
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal(claimsJson, &decodedJWT)
-	if err != nil {
-		return nil, err
-	}
-
-	return &decodedJWT, nil
-}
-
 func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities.JWTData, challenge *string, input *string) (context.Context, flow.IFlow, error) {
 	requestedFlow := m.Flows[flow]
 	if requestedFlow == nil {
@@ -71,9 +51,14 @@ func (m *Service) getFlow(ctx context.Context, flow string, decodedJWT *entities
 }
 
 func (m *Service) Process(ctx context.Context, jwt string, challenge string, input string, request bool, beforeHook *func(ctx context.Context, challenge string, input string) (context.Context, error)) (*entities.MFAResult, error) {
-	decodedJWT, err := m.decodeJWT(jwt)
+	// The JWT service verifies the signature, expiry and audience. We read the
+	// flow, challenge statuses and identifier only from the verified claims.
+	decodedJWT, err := m.JWTService.VerifyToken(jwt)
 	if err != nil {
 		return nil, err
+	}
+	if decodedJWT == nil {
+		return nil, errors.New("invalid JWT")
 	}
 	newCtx, requestFlow, err := m.getFlow(ctx, decodedJWT.Flow, decodedJWT, &challenge, &input)
 	if err != nil {
@@ -181,14 +166,8 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 	claims, _ := m.generateClaims(ctx, requestFlow, decodedJWT, &challenge)
 
 	if err != nil {
-		if _, ok := claims.Challenges[challenge]; ok {
-			claims.Challenges[challenge] = entities.Challenge{
-				Status: err.(*entities.MFAError).Code,
-			}
-		}
-
 		claims.Challenges[challenge] = entities.Challenge{
-			Status: err.(*entities.MFAError).Code,
+			Status: errorStatus(err),
 		}
 	}
 
@@ -215,7 +194,13 @@ func (m *Service) handleRequest(ctx context.Context, decodedJWT entities.JWTData
 		}, err
 	}
 	if result != nil {
-		reference := (*result)["Reference"].(string)
+		reference, ok := (*result)["Reference"].(string)
+		if !ok {
+			return &entities.MFAResult{
+				Token:      token,
+				Challenges: challenges,
+			}, errors.New("challenge request did not return a reference")
+		}
 
 		return &entities.MFAResult{
 			Token:      token,
@@ -238,9 +223,10 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 	resultJsonString := string(resultJson)
 	scopes := make([]string, 0)
 	if err != nil {
+		status := errorStatus(err)
 		claims, _ := m.generateClaims(ctx, requestFlow, decodedJWT, &challenge)
 		claims.Challenges[challenge] = entities.Challenge{
-			Status: err.(*entities.MFAError).Code,
+			Status: status,
 		}
 
 		var challenges []string
@@ -249,7 +235,7 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 		for _, flowChallenge := range challenges {
 			if flowChallenge == challenge {
 				claims.Challenges[flowChallenge] = entities.Challenge{
-					Status: err.(*entities.MFAError).Code,
+					Status: status,
 				}
 			} else {
 				claims.Challenges[flowChallenge] = entities.Challenge{
@@ -309,19 +295,37 @@ func (m *Service) handleSolve(ctx context.Context, decodedJWT entities.JWTData, 
 			Metadata:   &resultJsonString,
 		}, err
 	}
-	resolveTokenRef := (*resolveRes)["token"]
-	if resolveTokenRef == nil {
+	var resolveToken string
+	var ok bool
+	if resolveRes != nil {
+		resolveToken, ok = (*resolveRes)["token"].(string)
+	}
+	if !ok {
 		return &entities.MFAResult{
 			Token:      token,
 			Challenges: challenges,
 			Metadata:   &resultJsonString,
 		}, errors.New("unable to resolve flow")
 	}
-	resolveToken := resolveTokenRef.(string)
 
 	return &entities.MFAResult{
 		Token:      resolveToken,
 		Challenges: nil,
 		Metadata:   &resultJsonString,
 	}, nil
+}
+
+// errorStatus maps a challenge error to a challenge status. An MFAError carries its own
+// status code. Any other error marks the challenge as failed.
+func errorStatus(err error) string {
+	var mfaErrPtr *entities.MFAError
+	if errors.As(err, &mfaErrPtr) && mfaErrPtr != nil {
+		return mfaErrPtr.Code
+	}
+	var mfaErr entities.MFAError
+	if errors.As(err, &mfaErr) {
+		return mfaErr.Code
+	}
+
+	return entities.StatusFailed
 }

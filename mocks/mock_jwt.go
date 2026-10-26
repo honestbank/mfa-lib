@@ -48,3 +48,18 @@ func (mr *MockIJWTServiceMockRecorder) GenerateToken(arg0, arg1 interface{}) *go
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockIJWTService)(nil).GenerateToken), arg0, arg1)
 }
+
+// VerifyToken mocks base method.
+func (m *MockIJWTService) VerifyToken(arg0 string) (*entities.JWTData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyToken", arg0)
+	ret0, _ := ret[0].(*entities.JWTData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyToken indicates an expected call of VerifyToken.
+func (mr *MockIJWTServiceMockRecorder) VerifyToken(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyToken", reflect.TypeOf((*MockIJWTService)(nil).VerifyToken), arg0)
+}
